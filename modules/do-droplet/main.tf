@@ -1,6 +1,8 @@
 locals {
   replaced_punctuation = replace(var.team, "/[.!]/", "")
+  replaced_punctuation_p = replace(var.project, "/[.!]/", "")
   team = replace(lower(local.replaced_punctuation), " ", "-")
+  project = replace(lower(local.replaced_punctuation_p), " ", "-")
   default_ssh_keys = ["mkeil", "devops_shared_key"]
 }
 
