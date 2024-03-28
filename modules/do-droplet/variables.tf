@@ -6,6 +6,10 @@ variable "project" {
   type = string
 }
 
+variable "environment" {
+  type = string
+}
+
 variable "do_ssh_keys" {
   type = list(string)
   default = []

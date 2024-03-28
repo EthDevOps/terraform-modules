@@ -58,6 +58,7 @@ resource "digitalocean_droplet" "vm" {
   tags   = [
     "team-${local.team}",
     "project-${local.project}",
+    "env-${var.environment}",
     "created-by-tf"
   ]
   ssh_keys = [ for i in data.digitalocean_ssh_keys.keys.ssh_keys: i.id ]
@@ -78,6 +79,7 @@ resource "netbox_virtual_machine" "vm" {
   tags = var.tags
   custom_fields = {
     project = var.project
+    environment = var.environment
   }
 }
 
