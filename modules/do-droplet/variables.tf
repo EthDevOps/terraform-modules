@@ -51,7 +51,7 @@ variable "size" {
 }
 
 variable "configContext" {
-  type = map(string)
+  type = string
 }
 
 variable "os" {

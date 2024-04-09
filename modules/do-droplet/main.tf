@@ -74,7 +74,7 @@ resource "netbox_virtual_machine" "vm" {
   tenant_id = data.netbox_tenant.team.id
   site_id = data.netbox_cluster.do.site_id
   role_id = data.netbox_device_role.role.id
-  local_context_data = jsonencode(var.configContext)
+  local_context_data = var.configContext
   description = var.description
   tags = var.tags
   custom_fields = {
