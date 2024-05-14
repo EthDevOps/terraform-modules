@@ -102,6 +102,7 @@ resource "netbox_ip_address" "vm_eth0_ip4" {
   ip_address          = "${digitalocean_droplet.vm.ipv4_address}/20"
   status              = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
+  dns_name = "${var.hostname}.teleport.ethquokkaops.io"
 }
 
 resource "netbox_ip_address" "vm_eth1_ip4" {
