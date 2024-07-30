@@ -105,7 +105,7 @@ resource "netbox_virtual_disk" "example" {
   for_each = {for i in var.additional_volumes : i.name => i }
   name               = each.key
   description             = "TF-provisioned for ${var.hostname}"
-  size               = each.value.size_in_gb
+  size_gb               = each.value.size_in_gb
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
