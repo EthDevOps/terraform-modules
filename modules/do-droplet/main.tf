@@ -64,6 +64,24 @@ resource "digitalocean_droplet" "vm" {
   ssh_keys = [ for i in data.digitalocean_ssh_keys.keys.ssh_keys: i.id ]
 }
 
+resource "digitalocean_volume" "additional_storage" {
+
+  for_each = {for i in var.additional_volumes : i.name => i }
+
+  region                  = var.region
+  name                    = "${var.hostname}-vol-${each.key}"
+  size                    = each.value.size_in_gb
+  initial_filesystem_type = "ext4"
+  description             = "TF-provisioned for ${var.hostname}"
+}
+
+resource "digitalocean_volume_attachment" "foobar" {
+  for_each = {for i in var.additional_volumes : i.name => i }
+  
+  droplet_id = digitalocean_droplet.vm.id
+  volume_id  = digitalocean_volume.additional_storage[each.key].id
+}
+
 resource "netbox_virtual_machine" "vm" {
   cluster_id   = data.netbox_cluster.do.id
   name         = var.hostname
@@ -81,6 +99,14 @@ resource "netbox_virtual_machine" "vm" {
     project = var.project
     environment = var.environment
   }
+}
+
+resource "netbox_virtual_disk" "example" {
+  for_each = {for i in var.additional_volumes : i.name => i }
+  name               = each.key
+  description             = "TF-provisioned for ${var.hostname}"
+  size               = each.value.size_in_gb
+  virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
 resource "netbox_interface" "vm_eth0" {
