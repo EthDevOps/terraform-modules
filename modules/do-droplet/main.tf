@@ -85,7 +85,7 @@ resource "digitalocean_volume_attachment" "foobar" {
 resource "netbox_virtual_machine" "vm" {
   cluster_id   = data.netbox_cluster.do.id
   name         = var.hostname
-  disk_size_gb = element(data.digitalocean_sizes.main.sizes, 0).disk
+  #disk_size_gb = element(data.digitalocean_sizes.main.sizes, 0).disk
   memory_mb    = element(data.digitalocean_sizes.main.sizes, 0).memory
   vcpus        = element(data.digitalocean_sizes.main.sizes, 0).vcpus
   platform_id  = data.netbox_platform.os.id
@@ -106,6 +106,13 @@ resource "netbox_virtual_disk" "example" {
   name               = each.key
   description             = "TF-provisioned for ${var.hostname}"
   size_gb               = each.value.size_in_gb
+  virtual_machine_id = netbox_virtual_machine.vm.id
+}
+
+resource "netbox_virtual_disk" "os_disk" {
+  name               = "OS Disk"
+  description             = "Part of the droplet"
+  size_gb               = element(data.digitalocean_sizes.main.sizes, 0).disk
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
