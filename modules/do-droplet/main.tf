@@ -49,6 +49,11 @@ locals {
   }
 }
 
+output "droplet_id" {
+  value = digitalocean_droplet.vm.id
+  description = "ID of the DigitalOcean Droplet"
+}
+
 # Create a new Web Droplet in the nyc2 region
 resource "digitalocean_droplet" "vm" {
   image  = lookup(local.os_images, var.os)
