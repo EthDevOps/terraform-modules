@@ -2,7 +2,7 @@ variable "team" {
   type = string
 }
 
-variable "enable_ipve" {
+variable "enable_ipv6" {
   type = bool
   default = false
 }
