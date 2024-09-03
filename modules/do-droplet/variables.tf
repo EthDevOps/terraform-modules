@@ -2,6 +2,11 @@ variable "team" {
   type = string
 }
 
+variable "enable_ipve" {
+  type = bool
+  default = false
+}
+
 variable "project" {
   type = string
 }

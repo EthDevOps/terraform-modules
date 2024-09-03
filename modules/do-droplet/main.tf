@@ -60,6 +60,7 @@ resource "digitalocean_droplet" "vm" {
   name   = var.hostname
   region = var.region
   size   = var.size
+  ipv6   = var.enable_ipv6
   tags   = [
     "team-${local.team}",
     "project-${local.project}",
