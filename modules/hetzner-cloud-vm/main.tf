@@ -62,6 +62,11 @@ resource "hcloud_server" "vm" {
 
 }
 
+output "vm_id" {
+  value = hcloud_server.vm.id
+  description = "ID of the VM"
+}
+
 resource "hcloud_server_network" "srvnetwork" {
   count = var.private_network_id != "" ? 1 : 0
   server_id  = hcloud_server.vm.id
