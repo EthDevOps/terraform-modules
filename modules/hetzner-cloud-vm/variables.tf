@@ -77,3 +77,13 @@ variable "additional_volumes" {
   }))
   default = []
 }
+
+variable "private_network_id" {
+  type = string
+  default = ""
+}
+
+variable "private_network_ipv4" {
+  type = string
+  default = ""
+}

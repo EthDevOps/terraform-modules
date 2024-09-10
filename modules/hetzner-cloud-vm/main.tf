@@ -58,8 +58,6 @@ resource "hcloud_server" "vm" {
     ipv4_enabled = true
     ipv6_enabled = var.enable_ipv6
   }
-  
-
 }
 
 output "vm_id" {
@@ -84,7 +82,7 @@ resource "netbox_virtual_machine" "vm" {
   tenant_id = data.netbox_tenant.team.id
   site_id = data.netbox_cluster.htz.site_id
   role_id = data.netbox_device_role.role.id
-  local_context_data = jsonencode(var.configContext)
+  local_context_data = var.configContext
   description = var.description
   tags = var.tags
   custom_fields = {
