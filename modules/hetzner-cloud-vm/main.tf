@@ -50,7 +50,7 @@ resource "hcloud_server" "vm" {
     "team": local.team,
     "project": local.project,
     "env": var.environment,
-    "created-by"  "tf"
+    "created-by": "tf"
   }
   ssh_keys = concat(local.default_ssh_keys, var.htz_ssh_keys)
   
