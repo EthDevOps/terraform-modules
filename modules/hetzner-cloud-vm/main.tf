@@ -117,7 +117,7 @@ resource "netbox_ip_address" "vm_priv_ip4" {
   count = var.private_network_id != "" ? 1 : 0
   ip_address          = "${var.private_network_ipv4}/32"
   status              = "active"
-  virtual_machine_interface_id = netbox_interface.vm_priv.id
+  virtual_machine_interface_id = netbox_interface.vm_priv[0].id
 }
 
 resource "netbox_service" "svc" {
