@@ -103,7 +103,7 @@ resource "netbox_primary_ip" "vm_primary_ip" {
 
 resource "netbox_primary_ip" "vm_primary_ip6" {
   count = var.enable_ipv6 ? 1 : 0
-  ip_address_id      = netbox_ip_address.vm_eth0_ip6.id
+  ip_address_id      = netbox_ip_address.vm_eth0_ip6[0].id
   virtual_machine_id = netbox_virtual_machine.vm.id
   ip_address_version = 6
 }
