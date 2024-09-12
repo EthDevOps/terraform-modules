@@ -101,11 +101,27 @@ resource "netbox_primary_ip" "vm_primary_ip" {
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
+resource "netbox_primary_ip" "vm_primary_ip6" {
+  count = var.enable_ipv6 ? 1 : 0
+  ip_address_id      = netbox_ip_address.vm_eth0_ip6.id
+  virtual_machine_id = netbox_virtual_machine.vm.id
+  ip_address_version = 6
+}
+
 resource "netbox_ip_address" "vm_eth0_ip4" {
   ip_address          = "${hcloud_server.vm.ipv4_address}/32"
   status              = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
 }
+
+resource "netbox_ip_address" "vm_eth0_ip6" {
+  count = var.enable_ipv6 ? 1 : 0
+  ip_address          = "${hcloud_server.vm.ipv6_address}/64"
+  status              = "active"
+  virtual_machine_interface_id = netbox_interface.vm_eth0.id
+  dns_name = "${var.hostname}.teleport.ethquokkaops.io"
+}
+
 
 resource "netbox_interface" "vm_priv" {
   count = var.private_network_id != "" ? 1 : 0
