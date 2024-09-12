@@ -137,6 +137,12 @@ resource "netbox_primary_ip" "vm_primary_ip" {
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
+resource "netbox_primary_ip" "vm_primary_ip6" {
+  ip_address_id      = netbox_ip_address.vm_eth0_ip6.id
+  virtual_machine_id = netbox_virtual_machine.vm.id
+  ip_address_version = 6
+}
+
 resource "netbox_ip_address" "vm_eth0_ip4" {
   ip_address          = "${digitalocean_droplet.vm.ipv4_address}/20"
   status              = "active"
