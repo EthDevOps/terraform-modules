@@ -113,14 +113,14 @@ resource "netbox_virtual_disk" "example" {
   for_each = {for i in var.additional_volumes : i.name => i }
   name               = each.key
   description             = "TF-provisioned for ${var.hostname}"
-  size_gb               = each.value.size_in_gb
+  size_mb               = each.value.size_in_gb * 1024
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
 resource "netbox_virtual_disk" "os_disk" {
   name               = "OS Disk"
   description             = "Part of the droplet"
-  size_gb               = element(data.digitalocean_sizes.main.sizes, 0).disk
+  size_mb               = element(data.digitalocean_sizes.main.sizes, 0).disk * 1024
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
