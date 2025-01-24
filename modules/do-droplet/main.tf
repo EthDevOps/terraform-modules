@@ -14,7 +14,7 @@ data "digitalocean_ssh_keys" "keys" {
 }
 
 data "netbox_cluster" "do" {
-  name = "digitalocean-${local.team}-${var.region}"
+  name = "digitalocean-${var.region}"
 }
 
 data "netbox_platform" "os" {
