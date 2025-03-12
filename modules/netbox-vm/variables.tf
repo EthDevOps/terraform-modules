@@ -39,8 +39,8 @@ variable "nics" {
   type = list(object({
     name         = string
     is_primary   = bool
-    ipv6_enabled = bool
-    ipv6_address = string
+    ipv6_enabled = optional(bool, false)
+    ipv6_address = optional(string)
     ipv4_address = string
   }))
   default = []

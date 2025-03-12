@@ -7,7 +7,7 @@ locals {
 }
 
 data "netbox_cluster" "do" {
-  name = "digitalocean-${var.region}"
+  name = var.region
 }
 
 data "netbox_platform" "os" {
