@@ -77,7 +77,7 @@ resource "netbox_primary_ip" "vm_primary_ip" {
 }
 
 resource "netbox_primary_ip" "vm_primary_ip6" {
-  for_each           = { for i in var.nics : i.name => i if i.is_primary && i.ip6_enabled }
+  for_each           = { for i in var.nics : i.name => i if i.is_primary && i.ipv6_enabled }
   ip_address_id      = netbox_ip_address.vm_ip6[each.key].id
   virtual_machine_id = netbox_virtual_machine.vm.id
   ip_address_version = 6
