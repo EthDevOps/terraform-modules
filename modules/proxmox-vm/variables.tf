@@ -31,6 +31,15 @@ variable "disk_size" {
 variable "network_prefix" {
   type = string
 }
+variable "network_prefix6" {
+  type = string
+}
+variable "gateway_v4" {
+  type = string
+}
+variable "gateway_v6" {
+  type = string
+}
 
 variable "vm_username" {
   type = string

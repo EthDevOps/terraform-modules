@@ -28,7 +28,13 @@ resource "proxmox_virtual_environment_vm" "vm" {
   initialization {
     ip_config {
       ipv4 {
-        address = "dhcp"
+        address = netbox_available_ip_address.vm_ip.ip_address
+        gateway = var.gateway_v4
+      }
+
+      ipv6 {
+        address = netbox_available_ip_address.vm_ip6.ip_address
+        gateway = var.gateway_v6
       }
     }
 

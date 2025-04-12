@@ -50,8 +50,20 @@ data "netbox_prefix" "prefix" {
   prefix = var.network_prefix
 }
 
+data "netbox_prefix" "prefix6" {
+  prefix = var.network_prefix6
+}
+
 resource "netbox_available_ip_address" "vm_ip" {
   prefix_id = data.netbox_prefix.prefix.id
+  status              = "active"
+  virtual_machine_interface_id = netbox_interface.vm_eth0.id
+  dns_name = "${var.hostname}.dcl1.ethquokkaops.io"
+  description = var.hostname
+}
+
+resource "netbox_available_ip_address" "vm_ip6" {
+  prefix_id = data.netbox_prefix.prefix6.id
   status              = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
   dns_name = "${var.hostname}.dcl1.ethquokkaops.io"
