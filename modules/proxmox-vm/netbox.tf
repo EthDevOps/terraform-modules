@@ -105,6 +105,12 @@ resource "netbox_primary_ip" "vm_primary_ip" {
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
+resource "netbox_primary_ip" "vm_primary_ip6" {
+  ip_address_id      = netbox_available_ip_address.vm_ip6.id
+  virtual_machine_id = netbox_virtual_machine.vm.id
+  ip_address_version = 6
+}
+
 resource "netbox_service" "svc" {
   for_each = { for i in var.services : i.name => i }
   name = each.key
