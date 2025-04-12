@@ -42,7 +42,7 @@ variable "vm_ssh_keys" {
 }
 
 variable "vm_password" {
-  type = string,
+  type = string
   sensitive = true
 }
 
