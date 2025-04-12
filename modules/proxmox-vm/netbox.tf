@@ -77,7 +77,8 @@ resource "netbox_virtual_machine" "vm" {
   vcpus        = var.cores
   platform_id  = data.netbox_platform.os.id
   tenant_id = data.netbox_tenant.team.id
-  site_id = data.netbox_cluster.pve.site_id
+  #site_id = data.netbox_cluster.pve.site_id
+  site_id = data.netbox_devices.pve.devices[0].site_id
   role_id = data.netbox_device_role.role.id
   local_context_data = var.configContext
   description = var.description
