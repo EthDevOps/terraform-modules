@@ -23,7 +23,6 @@ locals {
 resource "proxmox_virtual_environment_vm" "vm" {
   name      = var.hostname
   node_name = random_shuffle.selected_pve_host.result[0]
-  depends_on = [opnsense_kea_reservation.vm]
 
   initialization {
     ip_config {
