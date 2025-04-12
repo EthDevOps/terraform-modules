@@ -44,6 +44,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
       keys     = var.vm_ssh_keys
     }
   }
+  
+  tags = sort(var.tags)
 
   operating_system {
     type = "l26"
