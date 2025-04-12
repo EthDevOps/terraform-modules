@@ -53,6 +53,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   clone {
+    node_name = "colo-pxe-01"
     vm_id = lookup(lookup(local.pvc_templates, random_shuffle.selected_pve_host.result[0]), var.os)
     full = true
   }
@@ -66,8 +67,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   vga {
     memory = 16
-    type = "serial0"
-}
+    type = "std"
+  }
 }
 
 
