@@ -47,7 +47,7 @@ data "netbox_prefix" "prefix" {
 }
 
 resource "netbox_available_ip_address" "vm_ip" {
-  prefix_id = data.netbox_prefix.test.id
+  prefix_id = data.netbox_prefix.prefix.id
   status              = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
   dns_name = "${var.hostname}.dcl1.ethquokkaops.io"
