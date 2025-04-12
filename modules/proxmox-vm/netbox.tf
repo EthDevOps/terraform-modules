@@ -50,6 +50,11 @@ data "netbox_prefix" "prefix" {
   prefix = var.network_prefix
 }
 
+data "netbox_vrf" "dcl" {
+  name = var.vrf
+}
+
+
 data "netbox_prefix" "prefix6" {
   prefix = var.network_prefix6
 }
@@ -60,6 +65,7 @@ resource "netbox_available_ip_address" "vm_ip" {
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
   dns_name = "${var.hostname}.dcl1.ethquokkaops.io"
   description = var.hostname
+  vrf_id = data.netbox_vrf.dcl.id
 }
 
 resource "netbox_available_ip_address" "vm_ip6" {
@@ -77,7 +83,6 @@ resource "netbox_virtual_machine" "vm" {
   vcpus        = var.cores
   platform_id  = data.netbox_platform.os.id
   tenant_id = data.netbox_tenant.team.id
-  #site_id = data.netbox_cluster.pve.site_id
   site_id = data.netbox_devices.pve.devices[0].site_id
   role_id = data.netbox_device_role.role.id
   local_context_data = var.configContext

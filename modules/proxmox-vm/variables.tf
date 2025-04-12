@@ -28,6 +28,9 @@ variable "disk_size" {
 variable "network_prefix" {
   type = string
 }
+variable "vrf" {
+  type = string
+}
 variable "network_prefix6" {
   type = string
 }
