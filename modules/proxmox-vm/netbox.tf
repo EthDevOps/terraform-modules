@@ -27,12 +27,16 @@ resource "random_shuffle" "selected_pve_host" {
   result_count = 1
 }
 
+output "pve_template" {
+  value = local.pvc_templates
+}
+
 locals {
 
   # Create a map with hostname as key and template_vm as value
   pvc_templates = {
     for device in data.netbox_devices.pve.devices :
-      device.name => try(jsondecode(device.local_config_context).template_vm, null)
+      device.name => try(jsondecode(device.config_context).template_vm, null)
   }
 
   pvc_nodes = keys(local.pvc_templates)
