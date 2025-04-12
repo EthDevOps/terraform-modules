@@ -4,9 +4,6 @@ variable "proxmox_cluster" {
 variable "role" {
   type = string
 }
-variable "kea_subnet" {
-  type = string
-}
 variable "team" {
   type = string
 }
