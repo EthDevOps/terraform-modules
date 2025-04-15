@@ -23,6 +23,12 @@ locals {
 resource "proxmox_virtual_environment_vm" "vm" {
   name      = var.hostname
   node_name = random_shuffle.selected_pve_host.result[0]
+  
+  lifecycle {
+    ignore_changes = [
+      node_name
+    ]
+  }
 
   initialization {
     ip_config {
