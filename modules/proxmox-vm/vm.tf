@@ -50,6 +50,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
     type = "l26"
   }
 
+  disk {
+    size = var.disk_size
+  }
+
   cpu {
     cores = var.cores
     type = "x86-64-v2-AES"
