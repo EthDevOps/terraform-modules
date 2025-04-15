@@ -51,6 +51,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   disk {
+    datastore_id = "vm-storage"
     interface = "scsi0"
     discard = "on"
     aio = "native"
