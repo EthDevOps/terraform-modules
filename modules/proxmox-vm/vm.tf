@@ -51,7 +51,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   disk {
-    interface = "virtio"
+    interface = "scsi0"
     discard = "on"
     aio = "native"
 
