@@ -51,6 +51,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   disk {
+    interface = "virtio"
     size = var.disk_size
   }
 
