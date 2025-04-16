@@ -70,6 +70,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     for_each = var.enable_ceph ? [1] : []
     content {
       bridge = "cephbr0"
+    mac_address = local.mac_address_ceph
       mtu = 9000
     }
   }
