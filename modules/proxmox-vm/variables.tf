@@ -34,6 +34,7 @@ variable "network_prefix" {
 }
 variable "ceph_network_prefix" {
   type = string
+  default =""
 }
 variable "vrf" {
   type = string
