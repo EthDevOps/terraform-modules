@@ -50,6 +50,10 @@ data "netbox_prefix" "prefix" {
   prefix = var.network_prefix
 }
 
+data "netbox_prefix" "ceph_prefix" {
+  prefix = var.ceph_network_prefix
+}
+
 data "netbox_vrf" "dcl" {
   name = var.vrf
 }
@@ -74,6 +78,15 @@ resource "netbox_available_ip_address" "vm_ip6" {
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
   dns_name = "${var.hostname}.dcl1.ethquokkaops.io"
   description = var.hostname
+}
+
+resource "netbox_available_ip_address" "vm_ip_ceph" {
+  count = var.enable_ceph ? 1 : 0
+  prefix_id = data.netbox_prefix.ceph_prefix.id
+  status              = "active"
+  virtual_machine_interface_id = netbox_interface.vm_eth1.id
+  description = "CEPH for ${var.hostname}"
+  vrf_id = data.netbox_vrf.dcl.id
 }
 
 resource "netbox_virtual_machine" "vm" {
@@ -102,6 +115,12 @@ resource "netbox_virtual_disk" "os_disk" {
 
 resource "netbox_interface" "vm_eth0" {
   name               = "eth0"
+  virtual_machine_id = netbox_virtual_machine.vm.id
+}
+
+resource "netbox_interface" "vm_eth1" {
+  count = var.enable_ceph ? 1 : 0
+  name               = "eth1"
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 

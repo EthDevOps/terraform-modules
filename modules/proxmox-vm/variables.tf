@@ -25,7 +25,14 @@ variable "cores" {
 variable "disk_size" {
   type = number
 }
+variable "enable_ceph" {
+  type = bool
+  default = false
+}
 variable "network_prefix" {
+  type = string
+}
+variable "ceph_network_prefix" {
   type = string
 }
 variable "vrf" {

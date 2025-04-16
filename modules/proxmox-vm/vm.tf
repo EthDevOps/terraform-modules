@@ -80,11 +80,18 @@ resource "proxmox_virtual_environment_vm" "vm" {
     full = true
   }
 
-
   network_device {
     bridge = "vmbr1"
     mac_address = local.mac_address
     vlan_id = 11
+  }
+
+  dynamic "network_device" {
+    for_each = var.enable_ceph ? [1] : []
+    content {
+      bridge = "cephbr0"
+      mtu = 9000
+    }
   }
 
   vga {
