@@ -1,25 +1,5 @@
 
 
-resource "random_id" "mac_address_1" {
-  byte_length = 1
-}
-resource "random_id" "mac_address_2" {
-  byte_length = 1
-}
-resource "random_id" "mac_address_3" {
-  byte_length = 1
-}
-
-locals {
-  # Convert the random bytes to a MAC address format
-  mac_address = upper(format("BC:24:11:%02x:%02x:%02x",
-    random_id.mac_address_1.dec,
-    random_id.mac_address_2.dec,
-    random_id.mac_address_3.dec
-    ))
-}
-
-
 resource "proxmox_virtual_environment_vm" "vm" {
   name      = var.hostname
   node_name = random_shuffle.selected_pve_host.result[0]
