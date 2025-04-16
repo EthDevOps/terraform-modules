@@ -51,6 +51,7 @@ data "netbox_prefix" "prefix" {
 }
 
 data "netbox_prefix" "ceph_prefix" {
+  count = var.enable_ceph ? 1 : 0
   prefix = var.ceph_network_prefix
 }
 
@@ -82,7 +83,7 @@ resource "netbox_available_ip_address" "vm_ip6" {
 
 resource "netbox_available_ip_address" "vm_ip_ceph" {
   count = var.enable_ceph ? 1 : 0
-  prefix_id = data.netbox_prefix.ceph_prefix.id
+  prefix_id = data.netbox_prefix.ceph_prefix[0].id
   status              = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth1[0].id
   description = "CEPH for ${var.hostname}"
