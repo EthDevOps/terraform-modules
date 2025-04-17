@@ -150,7 +150,7 @@ data "netbox_prefix" "additional_prefix" {
   prefix   = each.value
 }
 
-resource "netbox_available_ip_address" "vm_ip" {
+resource "netbox_available_ip_address" "additional_vm_ip" {
   for_each                     = toset(var.var.additional_network_prefixes)
   prefix_id                    = data.netbox_prefix.additional_prefix[each.key].id
   status                       = "active"
