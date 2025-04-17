@@ -26,15 +26,20 @@ variable "disk_size" {
   type = number
 }
 variable "enable_ceph" {
-  type = bool
+  type    = bool
   default = false
 }
 variable "network_prefix" {
   type = string
 }
+variable "additional_network_prefixes" {
+  type    = list(string)
+  default = []
+
+}
 variable "ceph_network_prefix" {
-  type = string
-  default =""
+  type    = string
+  default = ""
 }
 variable "vrf" {
   type = string
@@ -54,28 +59,28 @@ variable "vm_username" {
 }
 
 variable "vm_ssh_keys" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
 variable "vm_password" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 
 variable "description" {
-  type = string
+  type    = string
   default = ""
-} 
+}
 variable "tags" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
 variable "services" {
   type = list(object({
-    name = string
+    name  = string
     proto = string
     ports = list(number)
   }))
@@ -97,7 +102,7 @@ variable "os" {
 
 variable "additional_volumes" {
   type = list(object({
-    name = string
+    name       = string
     size_in_gb = number
   }))
   default = []

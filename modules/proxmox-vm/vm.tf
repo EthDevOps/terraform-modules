@@ -3,7 +3,7 @@
 resource "proxmox_virtual_environment_vm" "vm" {
   name      = var.hostname
   node_name = random_shuffle.selected_pve_host.result[0]
-  
+
   lifecycle {
     ignore_changes = [
       node_name
@@ -29,7 +29,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
       keys     = var.vm_ssh_keys
     }
   }
-  
+
   tags = sort(var.tags)
 
   operating_system {
@@ -38,16 +38,16 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   disk {
     datastore_id = "vm-storage"
-    interface = "scsi0"
-    discard = "on"
-    aio = "native"
+    interface    = "scsi0"
+    discard      = "on"
+    aio          = "native"
 
     size = var.disk_size
   }
 
   cpu {
     cores = var.cores
-    type = "x86-64-v2-AES"
+    type  = "x86-64-v2-AES"
   }
 
   memory {
@@ -56,28 +56,28 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   clone {
     node_name = "colo-pxe-01"
-    vm_id = lookup(lookup(local.pvc_templates, random_shuffle.selected_pve_host.result[0]), var.os)
-    full = true
+    vm_id     = lookup(lookup(local.pvc_templates, random_shuffle.selected_pve_host.result[0]), var.os)
+    full      = true
   }
 
   network_device {
-    bridge = "vmbr1"
+    bridge      = "vmbr1"
     mac_address = local.mac_address
-    vlan_id = 11
+    vlan_id     = 11
   }
 
   dynamic "network_device" {
     for_each = var.enable_ceph ? [1] : []
     content {
-      bridge = "cephbr0"
-    mac_address = local.mac_address_ceph
-      mtu = 9000
+      bridge      = "cephbr0"
+      mac_address = local.mac_address_ceph
+      mtu         = 9000
     }
   }
 
   vga {
     memory = 16
-    type = "std"
+    type   = "std"
   }
 }
 
