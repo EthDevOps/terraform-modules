@@ -146,12 +146,12 @@ resource "netbox_service" "svc" {
 }
 
 data "netbox_prefix" "additional_prefix" {
-  for_each = toset(var.var.additional_network_prefixes)
+  for_each = toset(var.additional_network_prefixes)
   prefix   = each.value
 }
 
 resource "netbox_available_ip_address" "additional_vm_ip" {
-  for_each                     = toset(var.var.additional_network_prefixes)
+  for_each                     = toset(var.additional_network_prefixes)
   prefix_id                    = data.netbox_prefix.additional_prefix[each.key].id
   status                       = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
