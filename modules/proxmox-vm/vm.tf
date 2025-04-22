@@ -23,6 +23,14 @@ resource "proxmox_virtual_environment_vm" "vm" {
       }
     }
 
+    dns {
+      domain  = "dcl1.ethquokkaops.io"
+      servers = [
+        "10.128.2.1"
+        ]
+    }
+
+
     user_account {
       username = var.vm_username
       password = var.vm_password
