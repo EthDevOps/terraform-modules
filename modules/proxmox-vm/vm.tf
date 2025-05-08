@@ -24,10 +24,10 @@ resource "proxmox_virtual_environment_vm" "vm" {
     }
 
     dns {
-      domain  = "dcl1.ethquokkaops.io"
+      domain = "dcl1.ethquokkaops.io"
       servers = [
         "10.128.2.1"
-        ]
+      ]
     }
 
 
@@ -51,6 +51,18 @@ resource "proxmox_virtual_environment_vm" "vm" {
     aio          = "native"
 
     size = var.disk_size
+  }
+
+  dynamic "disk" {
+    for_each = var.extra_disk_size != null ? [1] : []
+    content {
+      datastore_id = "vm-storage"
+      interface    = "scsi1"
+      discard      = "on"
+      aio          = "native"
+
+      size = var.extra_disk_size
+    }
   }
 
   cpu {

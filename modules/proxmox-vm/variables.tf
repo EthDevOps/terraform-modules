@@ -100,10 +100,8 @@ variable "os" {
 
 }
 
-variable "additional_volumes" {
-  type = list(object({
-    name       = string
-    size_in_gb = number
-  }))
-  default = []
+variable "extra_disk_size" {
+  type        = number
+  description = "Size of the additional disk in GB. Set to null to disable the extra disk."
+  default     = null
 }
