@@ -53,6 +53,10 @@ variable "gateway_v4" {
 variable "gateway_v6" {
   type = string
 }
+variable "vlan_id" {
+  type = number
+  default = 11
+}
 
 variable "vm_username" {
   type = string

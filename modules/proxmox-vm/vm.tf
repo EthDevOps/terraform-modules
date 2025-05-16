@@ -83,7 +83,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   network_device {
     bridge      = "vmbr1"
     mac_address = local.mac_address
-    vlan_id     = 11
+    vlan_id     = var.vlan_id
   }
 
   dynamic "network_device" {
