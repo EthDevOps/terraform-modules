@@ -21,7 +21,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
   interface       = ["wan"]
   ip_protocol     = "inet6"
 
-  protocol        = upper(each.value.proto)
+  protocol        = lower(each.value.proto)
 
   source = {
     net = "any"
@@ -49,7 +49,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
   interface       = ["wan"]
   ip_protocol     = "inet"
 
-  protocol        = upper(each.value.proto)
+  protocol        = lower(each.value.proto)
 
   source = {
     net = "any"
