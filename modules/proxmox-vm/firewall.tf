@@ -21,7 +21,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
   interface       = ["wan"]
   ip_protocol     = "inet6"
 
-  protocol        = lower(each.value.proto)
+  protocol        = upper(each.value.proto)
 
   source = {
     net = "any"
@@ -37,7 +37,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
 # IPv4 port forwards
 resource "opnsense_firewall_filter" "ipv4_wan_services" {
   for_each = {
-    for idx, service in local.l4_services : "${service.name}-${idx}" => service
+    for idx, service in local.l4_services : "${service.name}-${service.port}" => service
     if service.expose_ipv4 != null
   }
   
@@ -49,7 +49,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
   interface       = ["wan"]
   ip_protocol     = "inet"
 
-  protocol        = lower(each.value.proto)
+  protocol        = upper(each.value.proto)
 
   source = {
     net = "any"
@@ -64,13 +64,13 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
 
 resource "opnsense_firewall_nat" "port_forwards" {
   for_each = {
-    for idx, service in local.l4_services : "${service.name}-${idx}" => service
+    for idx, service in local.l4_services : "${service.name}-${service.port}" => service
     if service.expose_ipv4 != null
   }
 
   description        = "Port forward ${each.value.name} v4"
   interface          = "wan"
-  protocol          = lower(each.value.proto)
+  protocol          = upper(each.value.proto)
   enabled         = false
 
 
