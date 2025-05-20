@@ -18,7 +18,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
   description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v6"
   action          = "pass"
   direction       = "in"
-  enabled         = false
+  enabled         = true
 
   interface       = ["wan"]
   ip_protocol     = "inet6"
@@ -46,7 +46,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
   description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
   action          = "pass"
   direction       = "in"
-  enabled         = false
+  enabled         = true
 
   interface       = ["wan"]
   ip_protocol     = "inet"
