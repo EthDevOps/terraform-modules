@@ -13,7 +13,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
     for idx, service in local.l4_services : "${service.name}-${service.port}" => service
   }
 
-  description     = "Allow ${each.value.name} for ${var.hostname} (IPv6)"
+  description     = "Allow ${each.value.name} for ${var.hostname} v6"
   action          = "pass"
   direction       = "in"
   enabled         = false
@@ -41,7 +41,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
     if service.expose_ipv4 != null
   }
   
-  description     = "Allow ${each.value.name} for ${var.hostname} (IPv4)"
+  description     = "Allow ${each.value.name} for ${var.hostname} v4"
   action          = "pass"
   direction       = "in"
   enabled         = false
@@ -68,7 +68,7 @@ resource "opnsense_firewall_nat" "port_forwards" {
     if service.expose_ipv4 != null
   }
 
-  description        = "Port forward ${each.value.name} for ${var.hostname} (IPv4)"
+  description        = "Port forward ${each.value.name} for ${var.hostname} v4"
   interface          = "wan"
   protocol          = lower(each.value.proto)
   enabled         = false
