@@ -5,6 +5,8 @@ locals {
     service if service.expose_mode == "l4"
   ]
   safe_hostname = replace(var.hostname, "/[^a-zA-Z0-9]+/", ".")
+  no_prefix_v6 = split("/", netbox_available_ip_address.vm_ip6.ip_address)[0]
+  no_prefix_v4 = split("/", netbox_available_ip_address.vm_ip.ip_address)[0]
 }
 
 # IPv6 WAN rules - direct access
@@ -28,7 +30,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
   }
   
   destination = {
-    net = netbox_available_ip_address.vm_ip6.ip_address
+    net = "${local.no_prefix_v6}/128"
     port = tostring(each.value.port)
   }
 
@@ -56,7 +58,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
   }
   
   destination = {
-    net = netbox_available_ip_address.vm_ip.ip_address
+    net = "${local.no_prefix_v4}/32"
     port = tostring(each.value.port)
   }
 
