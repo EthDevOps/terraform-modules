@@ -84,7 +84,7 @@ resource "opnsense_firewall_nat" "port_forwards" {
   }
 
   target = {
-    net = netbox_available_ip_address.vm_ip.ip_address
+    ip = netbox_available_ip_address.vm_ip.ip_address
     port = tostring(each.value.port)
   }
 }
