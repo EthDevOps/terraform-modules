@@ -28,7 +28,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
   }
   
   destination = {
-    net = netbox_available_ip_address.vm_ip6.address
+    net = netbox_available_ip_address.vm_ip6.ip_address
     port = tostring(each.value.port)
   }
 
@@ -56,7 +56,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
   }
   
   destination = {
-    net = netbox_available_ip_address.vm_ip.address
+    net = netbox_available_ip_address.vm_ip.ip_address
     port = tostring(each.value.port)
   }
 
@@ -84,7 +84,7 @@ resource "opnsense_firewall_nat" "port_forwards" {
   }
 
   target = {
-    net = netbox_available_ip_address.vm_ip.address
+    net = netbox_available_ip_address.vm_ip.ip_address
     port = tostring(each.value.port)
   }
 }
