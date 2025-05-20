@@ -4,7 +4,7 @@ locals {
     for service in var.services :
     service if service.expose_mode == "l4"
   ]
-
+  safe_hostname = replace(var.hostname, "/[^a-zA-Z0-9]+/", ".")
 }
 
 # IPv6 WAN rules - direct access
@@ -13,7 +13,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
     for idx, service in local.l4_services : "${service.name}-${service.port}" => service
   }
 
-  description     = "Allow ${each.value.name} v6"
+  description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v6"
   action          = "pass"
   direction       = "in"
   enabled         = false
@@ -41,7 +41,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
     if service.expose_ipv4 != null
   }
   
-  description     = "Allow ${each.value.name} v4"
+  description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
   action          = "pass"
   direction       = "in"
   enabled         = false
@@ -68,7 +68,7 @@ resource "opnsense_firewall_nat" "port_forwards" {
     if service.expose_ipv4 != null
   }
 
-  description        = "Port forward ${each.value.name} v4"
+  description        = "Port forward ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
   interface          = "wan"
   protocol          = upper(each.value.proto)
   enabled         = false
