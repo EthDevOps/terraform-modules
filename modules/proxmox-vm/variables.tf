@@ -86,9 +86,16 @@ variable "services" {
   type = list(object({
     name  = string
     proto = string
-    ports = list(number)
+    port = number
+    expose_mode = optional(string, "off")
+    expose_ipv4 = optional(string, null)
+    expose_domain = optional(list(string), [])
   }))
   default = []
+  validation {
+    condition     = alltrue([for s in var.services : contains(["off", "l4", "l7"], s.expose_mode)])
+    error_message = "expose_mode must be one of: 'off', 'l4', or 'l7'"
+  }
 }
 variable "configContext" {
   type = string

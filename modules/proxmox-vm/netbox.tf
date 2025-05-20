@@ -140,9 +140,13 @@ resource "netbox_primary_ip" "vm_primary_ip6" {
 resource "netbox_service" "svc" {
   for_each           = { for i in var.services : i.name => i }
   name               = each.key
-  ports              = each.value.ports
+  ports              = [each.value.port]
   protocol           = each.value.proto
   virtual_machine_id = netbox_virtual_machine.vm.id
+  custom_fields = {
+    expose_http = each.value.expose_mode == "l7" ? "true" : "false"
+    expose_domain = join(",", each.value.expose_domain)
+  }
 }
 
 data "netbox_prefix" "additional_prefix" {

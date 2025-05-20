@@ -12,6 +12,10 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
+    opnsense = {
+      version = "~> x.0"
+      source  = "browningluke/opnsense"
+    }
   }
 }
 
