@@ -62,30 +62,3 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
 
 }
 
-resource "opnsense_firewall_nat" "port_forwards" {
-  for_each = {
-    for idx, service in local.l4_services : "${service.name}-${service.port}" => service
-    if service.expose_ipv4 != null
-  }
-
-  description        = "Port forward ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
-  interface          = "wan"
-  protocol          = upper(each.value.proto)
-  enabled         = false
-
-
-  source = {
-    net = "any"
-  }
-
-  destination = {
-    net = each.value.expose_ipv4
-    port = tostring(each.value.port)
-  }
-
-  target = {
-    ip = netbox_available_ip_address.vm_ip.ip_address
-    port = tostring(each.value.port)
-  }
-}
-
