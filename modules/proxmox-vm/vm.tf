@@ -26,7 +26,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     dns {
       domain = "dcl1.ethquokkaops.io"
       servers = [
-        "10.128.2.1"
+        var.dns_server
       ]
     }
 
@@ -67,7 +67,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   cpu {
     cores = var.cores
-    type  = "x86-64-v2-AES"
+    type  = "x86-64-v4"
   }
 
   memory {

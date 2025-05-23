@@ -50,6 +50,10 @@ variable "network_prefix6" {
 variable "gateway_v4" {
   type = string
 }
+variable "dns_server" {
+  type = string
+  default = "10.128.2.1"
+}
 variable "gateway_v6" {
   type = string
 }
