@@ -92,7 +92,7 @@ variable "services" {
     proto = string
     port = number
     expose_mode = optional(string, "off")
-    expose_auth = optional(string, null)
+    expose_auth = optional(string, "none")
     expose_ipv4 = optional(string, null)
     expose_domain = optional(list(string), [])
   }))
