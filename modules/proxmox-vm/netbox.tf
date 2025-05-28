@@ -148,6 +148,7 @@ resource "netbox_service" "svc" {
     expose_mode = each.value.expose_mode
     expose_domain = join(",", each.value.expose_domain)
     expose_auth = each.value.expose_auth
+    teleport_name = each.value.teleport_name
   }
 }
 

@@ -94,6 +94,7 @@ variable "services" {
     expose_mode = optional(string, "off")
     expose_auth = optional(string, "none")
     expose_ipv4 = optional(string, null)
+    teleport_name = optional(string, null)
     expose_domain = optional(list(string), [])
   }))
   default = []
