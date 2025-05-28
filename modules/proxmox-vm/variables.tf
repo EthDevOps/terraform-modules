@@ -99,8 +99,8 @@ variable "services" {
   }))
   default = []
   validation {
-    condition     = alltrue([for s in var.services : contains(["off", "l4", "l7"], s.expose_mode)])
-    error_message = "expose_mode must be one of: 'off', 'l4', or 'l7'"
+    condition     = alltrue([for s in var.services : contains(["off", "l4", "l7", "teleport"], s.expose_mode)])
+    error_message = "expose_mode must be one of: 'off', 'l4', 'l7' or 'teleport'"
   }
 }
 variable "configContext" {
