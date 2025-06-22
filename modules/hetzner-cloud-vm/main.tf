@@ -7,7 +7,7 @@ locals {
 }
 
 data "netbox_cluster" "htz" {
-  name = "hetznercloud-${local.team}-${var.region}"
+  name = "hetznercloud-${var.region}"
 }
 
 data "netbox_platform" "os" {
