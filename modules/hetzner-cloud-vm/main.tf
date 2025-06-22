@@ -75,7 +75,7 @@ resource "hcloud_server_network" "srvnetwork" {
 resource "netbox_virtual_machine" "vm" {
   cluster_id   = data.netbox_cluster.htz.id
   name         = var.hostname
-  disk_size_gb = data.hcloud_server_type.main.disk
+  disk_size_mb = data.hcloud_server_type.main.disk * 1024
   memory_mb    = data.hcloud_server_type.main.memory * 1024
   vcpus        = data.hcloud_server_type.main.cores
   platform_id  = data.netbox_platform.os.id
