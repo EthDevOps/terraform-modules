@@ -97,6 +97,7 @@ variable "services" {
     internal_only = optional(bool, false)
     teleport_name = optional(string, "")
     expose_domain = optional(list(string), [])
+    balance_mode = optional(string, "roundrobin")
   }))
   default = []
   validation {
