@@ -149,6 +149,7 @@ resource "netbox_service" "svc" {
     expose_domain = join(",", each.value.expose_domain)
     expose_auth = each.value.expose_auth
     teleport_name = each.value.teleport_name
+    internal_only = each.value.internal_only
   }
 }
 
