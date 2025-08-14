@@ -116,7 +116,10 @@ resource "netbox_virtual_disk" "os_disk" {
 resource "netbox_interface" "vm_eth0" {
   name               = "eth0"
   virtual_machine_id = netbox_virtual_machine.vm.id
+}
+resource "netbox_mac_address" "vm_eth0" {
   mac_address        = local.mac_address
+  virtual_machine_interface_id = netbox_interface.vm_eth0.id
 }
 
 resource "netbox_interface" "vm_eth1" {
@@ -124,7 +127,11 @@ resource "netbox_interface" "vm_eth1" {
   name               = "eth1"
   virtual_machine_id = netbox_virtual_machine.vm.id
   mac_address        = local.mac_address_ceph
-
+}
+resource "netbox_mac_address" "vm_eth1" {
+  count              = var.enable_ceph ? 1 : 0
+  mac_address        = local.mac_address_ceph
+  virtual_machine_interface_id = netbox_interface.vm_eth1.id
 }
 
 resource "netbox_primary_ip" "vm_primary_ip" {
