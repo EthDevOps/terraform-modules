@@ -9,7 +9,7 @@ locals {
 data "digitalocean_ssh_keys" "keys" {
   filter {
     key    = "name"
-    values = concat(local.default_ssh_keys, var.do_ssh_keys) 
+    values = concat(local.default_ssh_keys, var.do_ssh_keys)
   }
 }
 
@@ -85,7 +85,7 @@ resource "digitalocean_volume" "additional_storage" {
 
 resource "digitalocean_volume_attachment" "foobar" {
   for_each = {for i in var.additional_volumes : i.name => i }
-  
+
   droplet_id = digitalocean_droplet.vm.id
   volume_id  = digitalocean_volume.additional_storage[each.key].id
 }
@@ -93,7 +93,7 @@ resource "digitalocean_volume_attachment" "foobar" {
 resource "netbox_virtual_machine" "vm" {
   cluster_id   = data.netbox_cluster.do.id
   name         = var.hostname
-  #disk_size_gb = element(data.digitalocean_sizes.main.sizes, 0).disk
+  disk_size_mb = (element(data.digitalocean_sizes.main.sizes, 0).disk + sum([for v in var.additional_volumes : v.size_in_gb])) * 1024
   memory_mb    = element(data.digitalocean_sizes.main.sizes, 0).memory
   vcpus        = element(data.digitalocean_sizes.main.sizes, 0).vcpus
   platform_id  = data.netbox_platform.os.id
