@@ -98,7 +98,7 @@ resource "netbox_virtual_machine" "vm" {
   tenant_id          = data.netbox_tenant.team.id
   site_id            = data.netbox_devices.pve.devices[0].site_id
   role_id            = data.netbox_device_role.role.id
-  local_context_data = var.configContext
+  local_context_data = var.storage_optimized ? jsonencode(merge(jsondecode(var.configContext), { storage_optimized = true })) : var.configContext
   description        = var.description
   tags               = var.tags
   custom_fields = {
