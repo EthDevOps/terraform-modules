@@ -49,25 +49,45 @@ resource "proxmox_virtual_environment_vm" "vm" {
     interface    = "scsi0"
     discard      = "on"
     aio          = "native"
+    iothread = true
+    ssd = true
 
     size = var.disk_size
   }
 
   dynamic "disk" {
-    for_each = var.extra_disk_size != null ? [1] : []
+    for_each = var.extra_disk_size != null && !var.storage_optimized ? [1] : []
     content {
       datastore_id = "vm-storage"
       interface    = "scsi1"
       discard      = "on"
       aio          = "native"
+    iothread = true
+    ssd = true
 
       size = var.extra_disk_size
+    }
+  }
+  
+  dynamic "disk" {
+    for_each = var.storage_optimized && var.extra_disk_size != null ? [1, 2] : []
+    content {
+      datastore_id = "vm-storage"
+      interface    = "scsi${disk.value}"
+      discard      = "on"
+      aio          = "native"
+      iothread = true
+      ssd = true
+      cache = "unsafe"
+
+      size = var.extra_disk_size / 2
     }
   }
 
   cpu {
     cores = var.cores
-    type  = "x86-64-v4"
+    type  = var.storage_optimized ? "host" : "x86-64-v4"
+    numa = var.storage_optimized
   }
 
   memory {

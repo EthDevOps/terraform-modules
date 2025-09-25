@@ -118,6 +118,10 @@ variable "os" {
   default = "debian12"
 
 }
+variable "storage_optimized" {
+  type = bool
+  default = false
+}
 
 variable "extra_disk_size" {
   type        = number
