@@ -29,6 +29,10 @@ variable "enable_ceph" {
   type    = bool
   default = false
 }
+variable "enable_firewall_config" {
+  type    = bool
+  default = true
+}
 variable "network_prefix" {
   type = string
 }

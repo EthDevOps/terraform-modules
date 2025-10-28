@@ -12,7 +12,7 @@ locals {
 # IPv6 WAN rules - direct access
 resource "opnsense_firewall_filter" "ipv6_wan_services" {
   for_each = {
-    for idx, service in local.l4_services : "${service.name}-${service.port}" => service
+    for idx, service in local.l4_services : "${service.name}-${service.port}" => service if var.enable_firewall_config
   }
 
   description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v6"
@@ -40,7 +40,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
 resource "opnsense_firewall_filter" "ipv4_wan_services" {
   for_each = {
     for idx, service in local.l4_services : "${service.name}-${service.port}" => service
-    if service.expose_ipv4 != null
+    if service.expose_ipv4 != null && var.enable_firewall_config
   }
   
   description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
