@@ -43,6 +43,7 @@ locals {
 
   platform = {
     debian12 = "Debian 12 - Bookworm"
+    debian13 = "Debian 13 - Trixie"
     ubuntu2404 = "Ubuntu 24.04 LTS"
   }
 }
