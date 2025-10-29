@@ -19,6 +19,11 @@ variable "hostname" {
   type = string
 }
 
+variable "expire_date" {
+  type = string
+  default = null
+}
+
 variable "role" {
   type = string
   default = "server"

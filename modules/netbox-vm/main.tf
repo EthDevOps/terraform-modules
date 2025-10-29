@@ -47,6 +47,7 @@ resource "netbox_virtual_machine" "vm" {
   custom_fields = {
     project     = var.project
     environment = var.environment
+    expire_date = var.expire_date
   }
 }
 
