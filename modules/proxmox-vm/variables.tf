@@ -48,6 +48,10 @@ variable "ceph_network_prefix" {
 variable "vrf" {
   type = string
 }
+variable "expire_date" {
+  type = string
+  default = ""
+}
 variable "network_prefix6" {
   type = string
 }
