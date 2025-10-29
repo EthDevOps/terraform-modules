@@ -21,7 +21,7 @@ variable "hostname" {
 
 variable "expire_date" {
   type = string
-  default = null
+  default = ""
 }
 
 variable "role" {
