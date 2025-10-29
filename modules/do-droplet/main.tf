@@ -41,12 +41,14 @@ locals {
     debian10 = "debian-10-x64"
     debian11 = "debian-11-x64"
     debian12 = "debian-12-x64"
+    debian13 = "debian-13-x64"
     ubuntu2404 = "ubuntu-24-04-x64"
   }
   platform = {
     debian10 = "Debian 10 - Buster"
     debian11 = "Debian 11 - Bullseye"
     debian12 = "Debian 12 - Bookworm"
+    debian13 = "Debian 13 - Trixie"
     ubuntu2404 = "Ubuntu 24.04 LTS"
   }
 }
@@ -106,6 +108,7 @@ resource "netbox_virtual_machine" "vm" {
   custom_fields = {
     project = var.project
     environment = var.environment
+    expire_date = var.expire_date
   }
 }
 
