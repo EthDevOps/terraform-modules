@@ -27,6 +27,7 @@ locals {
     debian10   = "Debian 10 - Buster"
     debian11   = "Debian 11 - Bullseye"
     debian12   = "Debian 12 - Bookworm"
+    debian13   = "Debian 13 - Trixie"
     ubuntu2404 = "Ubuntu 24.04 LTS"
   }
 }
