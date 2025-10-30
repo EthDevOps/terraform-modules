@@ -126,6 +126,9 @@ resource "proxmox_virtual_environment_vm" "vm" {
 output "ipv4" {
   value = netbox_available_ip_address.vm_ip.ip_address
 }
+output "ipv6" {
+  value = netbox_available_ip_address.vm_ip6.ip_address
+}
 output "mac" {
   value = local.mac_address
 }
