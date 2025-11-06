@@ -131,6 +131,11 @@ variable "storage_optimized" {
   default = false
 }
 
+variable "pve_template_host" {
+  type = string
+  default = "colo-pxe-01"
+}
+
 variable "extra_disk_size" {
   type        = number
   description = "Size of the additional disk in GB. Set to null to disable the extra disk."

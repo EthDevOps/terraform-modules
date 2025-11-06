@@ -95,7 +95,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   clone {
-    node_name = "colo-pxe-01"
+    node_name = var.pve_template_host
     vm_id     = lookup(lookup(local.pvc_templates, random_shuffle.selected_pve_host.result[0]), var.os)
     full      = true
   }
