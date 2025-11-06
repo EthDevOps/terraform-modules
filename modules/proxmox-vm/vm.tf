@@ -45,7 +45,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   disk {
-    datastore_id = "vm-storage"
+    datastore_id = var.pve_target_storage
     interface    = "scsi0"
     discard      = "on"
     aio          = "native"
@@ -58,7 +58,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   dynamic "disk" {
     for_each = var.extra_disk_size != null && !var.storage_optimized ? [1] : []
     content {
-      datastore_id = "vm-storage"
+      datastore_id = var.pve_target_storage
       interface    = "scsi1"
       discard      = "on"
       aio          = "native"
@@ -72,7 +72,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   dynamic "disk" {
     for_each = var.storage_optimized && var.extra_disk_size != null ? [1, 2] : []
     content {
-      datastore_id = "vm-storage"
+      datastore_id = var.pve_target_storage
       interface    = "scsi${disk.value}"
       discard      = "on"
       aio          = "native"
@@ -101,7 +101,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 
   network_device {
-    bridge      = "vmbr1"
+    bridge      = var.pve_network_bridge
     mac_address = local.mac_address
     vlan_id     = var.vlan_id
   }

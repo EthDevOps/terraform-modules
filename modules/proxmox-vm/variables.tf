@@ -135,6 +135,14 @@ variable "pve_template_host" {
   type = string
   default = "colo-pxe-01"
 }
+variable "pve_target_storage" {
+  type = string
+  default = "vm-storage"
+}
+variable "pve_netowkr_bridge" {
+  type = string
+  default = "vmbr1"
+}
 
 variable "extra_disk_size" {
   type        = number
