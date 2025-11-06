@@ -139,7 +139,7 @@ variable "pve_target_storage" {
   type = string
   default = "vm-storage"
 }
-variable "pve_netowkr_bridge" {
+variable "pve_network_bridge" {
   type = string
   default = "vmbr1"
 }
