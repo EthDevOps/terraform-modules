@@ -15,23 +15,29 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
     for idx, service in local.l4_services : "${service.name}-${service.port}" => service if var.enable_firewall_config
   }
 
-  description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v6"
-  action          = "pass"
-  direction       = "in"
   enabled         = true
-
-  interface       = ["wan"]
-  ip_protocol     = "inet6"
-
-  protocol        = upper(each.value.proto)
-
-  source = {
-    net = "any"
-  }
+  description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v6"
   
-  destination = {
-    net = "${local.no_prefix_v6}/128"
-    port = tostring(each.value.port)
+  interface = {
+    interface       = ["wan"]
+  }
+
+  filter = {
+    action          = "pass"
+    direction       = "in"
+    ip_protocol     = "inet6"
+
+    protocol        = upper(each.value.proto)
+
+    source = {
+      net = "any"
+    }
+    
+    destination = {
+      net = "${local.no_prefix_v6}/128"
+      port = tostring(each.value.port)
+    }
+
   }
 
 }
@@ -43,24 +49,28 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
     if service.expose_ipv4 != null && var.enable_firewall_config
   }
   
-  description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
-  action          = "pass"
-  direction       = "in"
   enabled         = true
-
-  interface       = ["wan"]
-  ip_protocol     = "inet"
-
-  protocol        = upper(each.value.proto)
-
-  source = {
-    net = "any"
-  }
+  description     = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
   
-  destination = {
-    net = "${local.no_prefix_v4}/32"
-    port = tostring(each.value.port)
+
+  interface = {
+    interface       = ["wan"]
   }
 
+  filter {
+    action          = "pass"
+    direction       = "in"
+    protocol        = upper(each.value.proto)
+    ip_protocol     = "inet"
+    source = {
+      net = "any"
+    }
+    
+    destination = {
+      net = "${local.no_prefix_v4}/32"
+      port = tostring(each.value.port)
+    }
+
+  }
 }
 
