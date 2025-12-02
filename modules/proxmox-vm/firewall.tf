@@ -57,7 +57,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
     interface       = ["wan"]
   }
 
-  filter {
+  filter = {
     action          = "pass"
     direction       = "in"
     protocol        = upper(each.value.proto)
