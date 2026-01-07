@@ -137,11 +137,13 @@ resource "netbox_mac_address" "vm_eth1" {
 }
 
 resource "netbox_primary_ip" "vm_primary_ip" {
+  depends_on = [netbox_available_ip_address.vm_ip.id,netbox_virtual_machine.vm.id,netbox_interface.vm_eth0]
   ip_address_id      = netbox_available_ip_address.vm_ip.id
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
 resource "netbox_primary_ip" "vm_primary_ip6" {
+  depends_on = [netbox_primary_ip.vm_primary_ip]
   ip_address_id      = netbox_available_ip_address.vm_ip6.id
   virtual_machine_id = netbox_virtual_machine.vm.id
   ip_address_version = 6
