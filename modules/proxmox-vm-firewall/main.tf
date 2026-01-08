@@ -14,6 +14,7 @@ variable "services" {
     expose_mode = optional(string, "off")
     expose_ipv4 = optional(string, null)
   }))
+  default = []
 }
 
 variable "hostname" {
@@ -21,11 +22,13 @@ variable "hostname" {
 }
 
 variable "ipv6_address" {
-  type = string
+  type        = string
+  description = "IPv6 address with prefix (e.g. from module.vm.ipv6)"
 }
 
 variable "ipv4_address" {
-  type = string
+  type        = string
+  description = "IPv4 address with prefix (e.g. from module.vm.ipv4)"
 }
 
 locals {
@@ -66,9 +69,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
       net  = "${local.no_prefix_v6}/128"
       port = tostring(each.value.port)
     }
-
   }
-
 }
 
 # IPv4 port forwards
@@ -80,7 +81,6 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
 
   enabled     = true
   description = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
-
 
   interface = {
     interface = ["wan"]
@@ -99,6 +99,5 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
       net  = "${local.no_prefix_v4}/32"
       port = tostring(each.value.port)
     }
-
   }
 }
