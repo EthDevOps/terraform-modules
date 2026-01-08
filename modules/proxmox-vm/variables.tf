@@ -31,7 +31,8 @@ variable "enable_ceph" {
 }
 variable "enable_firewall_config" {
   type    = bool
-  default = true
+  default = false
+  description = "Enable OPNsense firewall configuration. Requires the browningluke/opnsense provider to be configured."
 }
 variable "network_prefix" {
   type = string
