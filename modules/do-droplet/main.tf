@@ -43,6 +43,7 @@ locals {
     debian12 = "debian-12-x64"
     debian13 = "debian-13-x64"
     ubuntu2404 = "ubuntu-24-04-x64"
+    ubuntuml = "gpu-h100x1-base"
   }
   platform = {
     debian10 = "Debian 10 - Buster"
@@ -50,6 +51,7 @@ locals {
     debian12 = "Debian 12 - Bookworm"
     debian13 = "Debian 13 - Trixie"
     ubuntu2404 = "Ubuntu 24.04 LTS"
+    ubuntuml = "Ubuntu 24.04 ML/AI"
   }
 }
 
