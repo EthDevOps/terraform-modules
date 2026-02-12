@@ -47,11 +47,22 @@ variable "tags" {
 
 variable "services" {
   type = list(object({
-    name = string
-    proto = string
-    ports = list(number)
+    name          = string
+    proto         = string
+    port          = number
+    expose_mode   = optional(string, "off")
+    expose_auth   = optional(string, "none")
+    expose_ipv4   = optional(string, null)
+    internal_only = optional(bool, false)
+    teleport_name = optional(string, "")
+    expose_domain = optional(list(string), [])
+    balance_mode  = optional(string, "roundrobin")
   }))
   default = []
+  validation {
+    condition     = alltrue([for s in var.services : contains(["off", "l4", "l7", "teleport"], s.expose_mode)])
+    error_message = "expose_mode must be one of: 'off', 'l4', 'l7' or 'teleport'"
+  }
 }
 
 variable "size" {

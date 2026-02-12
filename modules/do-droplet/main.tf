@@ -171,11 +171,19 @@ resource "netbox_ip_address" "vm_eth1_ip4" {
 }
 
 resource "netbox_service" "svc" {
-  for_each = { for i in var.services : i.name => i }
-  name = each.key
-  ports = each.value.ports
-  protocol = each.value.proto
+  for_each           = { for i in var.services : i.name => i }
+  name               = each.key
+  ports              = [each.value.port]
+  protocol           = each.value.proto
   virtual_machine_id = netbox_virtual_machine.vm.id
+  custom_fields = {
+    expose_mode   = each.value.expose_mode
+    expose_domain = join(",", each.value.expose_domain)
+    expose_auth   = each.value.expose_auth
+    teleport_name = each.value.teleport_name
+    internal_only = each.value.internal_only
+    balance_mode  = each.value.balance_mode
+  }
 }
 
 
