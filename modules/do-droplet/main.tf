@@ -97,7 +97,6 @@ resource "digitalocean_volume_attachment" "foobar" {
 resource "netbox_virtual_machine" "vm" {
   cluster_id   = data.netbox_cluster.do.id
   name         = var.hostname
-  disk_size_mb = (element(data.digitalocean_sizes.main.sizes, 0).disk + sum(concat([for v in var.additional_volumes : v.size_in_gb], [0]))) * 1024
   memory_mb    = element(data.digitalocean_sizes.main.sizes, 0).memory
   vcpus        = element(data.digitalocean_sizes.main.sizes, 0).vcpus
   platform_id  = data.netbox_platform.os.id
