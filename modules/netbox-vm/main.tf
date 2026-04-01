@@ -111,4 +111,12 @@ resource "netbox_service" "svc" {
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
+output "ipv4" {
+  value = one([for nic in var.nics : netbox_ip_address.vm_ip4[nic.name].ip_address if nic.is_primary])
+}
+
+output "ipv6" {
+  value = one([for nic in var.nics : netbox_ip_address.vm_ip6[nic.name].ip_address if nic.is_primary && nic.ipv6_enabled])
+}
+
 

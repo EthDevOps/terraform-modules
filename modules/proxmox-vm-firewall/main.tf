@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     opnsense = {
-      source = "browningluke/opnsense"
+      source = "ethdevops/opnsense"
     }
   }
 }
@@ -12,7 +12,7 @@ variable "services" {
     proto       = string
     port        = number
     expose_mode = optional(string, "off")
-    expose_ipv4 = optional(string, null)
+    public_ipv4 = string
   }))
   default = []
 }
@@ -101,3 +101,31 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
     }
   }
 }
+
+resource "opnsense_firewall_dnat" "port_forward_https" {
+  for_each = {
+    for idx, service in local.l4_services : "${service.name}-${service.port}" => service
+    if service.expose_ipv4 != null
+  }
+  interface = "wan"
+  protocol  = lower(each.value.proto)
+  categories = [
+    opnsense_firewall_category.terraform.id
+  ]
+
+  destination = {
+    net  = each.value.public_ipv4
+    port = tostring(each.value.port)
+  }
+
+  target = {
+    ip   = "${local.no_prefix_v4}/32"
+    port = tostring(each.value.port)
+  }
+
+  description = "Port forward port ${each.value.port} on ${each.value.public_ipv4} to ${local.no_prefix_v4}"
+}
+
+
+
+

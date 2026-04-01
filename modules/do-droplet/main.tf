@@ -60,6 +60,14 @@ output "droplet_id" {
   description = "ID of the DigitalOcean Droplet"
 }
 
+output "ipv4" {
+  value = digitalocean_droplet.vm.ipv4_address
+}
+
+output "ipv6" {
+  value = var.enable_ipv6 ? digitalocean_droplet.vm.ipv6_address : null
+}
+
 # Create a new Web Droplet in the nyc2 region
 resource "digitalocean_droplet" "vm" {
   image  = lookup(local.os_images, var.os)
