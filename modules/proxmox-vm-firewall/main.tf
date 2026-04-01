@@ -77,7 +77,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
 resource "opnsense_firewall_filter" "ipv4_wan_services" {
   for_each = {
     for idx, service in local.l4_services : "${service.name}-${service.port}" => service
-    if service.expose_ipv4 != null
+    if service.public_ipv4 != null
   }
 
   enabled     = true
@@ -106,7 +106,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
 resource "opnsense_firewall_dnat" "port_forward_https" {
   for_each = {
     for idx, service in local.l4_services : "${service.name}-${service.port}" => service
-    if service.expose_ipv4 != null
+    if service.public_ipv4 != null
   }
   interface = "wan"
   protocol  = lower(each.value.proto)
