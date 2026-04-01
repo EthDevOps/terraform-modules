@@ -41,6 +41,7 @@ locals {
   no_prefix_v4  = split("/", var.ipv4_address)[0]
 }
 
+
 # IPv6 WAN rules - direct access
 resource "opnsense_firewall_filter" "ipv6_wan_services" {
   for_each = {
@@ -48,7 +49,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
   }
 
   enabled     = true
-  description = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v6"
+  description = "TF - Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v6"
 
   interface = {
     interface = ["wan"]
@@ -80,7 +81,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
   }
 
   enabled     = true
-  description = "Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
+  description = "TF - Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
 
   interface = {
     interface = ["wan"]
@@ -109,9 +110,6 @@ resource "opnsense_firewall_dnat" "port_forward_https" {
   }
   interface = "wan"
   protocol  = lower(each.value.proto)
-  categories = [
-    opnsense_firewall_category.terraform.id
-  ]
 
   destination = {
     net  = each.value.public_ipv4
@@ -123,7 +121,7 @@ resource "opnsense_firewall_dnat" "port_forward_https" {
     port = tostring(each.value.port)
   }
 
-  description = "Port forward port ${each.value.port} on ${each.value.public_ipv4} to ${local.no_prefix_v4}"
+  description = "TF - Port forward port ${each.value.port} on ${each.value.public_ipv4} to ${local.no_prefix_v4}"
 }
 
 
