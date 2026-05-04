@@ -116,10 +116,10 @@ variable "configContext" {
 variable "os" {
   type = string
   validation {
-    condition     = contains(["debian12","debian13","ubuntu2404"], var.os)
-    error_message = "Only debian12, debian13 or ubuntu2404 is supported"
+    condition     = contains(["debian12","debian13","ubuntu2404","ubuntu2604"], var.os)
+    error_message = "Only debian12, debian13, ubuntu2404, ubuntu2604 is supported"
   }
-  default = "debian12"
+  default = "debian13"
 
 }
 variable "storage_optimized" {
