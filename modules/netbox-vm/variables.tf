@@ -77,8 +77,8 @@ variable "configContext" {
 variable "os" {
   type = string
   validation {
-    condition     = contains(["debian10", "debian11", "debian12", "debian13", "ubuntu2404"], var.os)
-    error_message = "Only ubuntu2404 and debian 10 to 13 are supported"
+    condition     = contains(["debian10", "debian11", "debian12", "debian13", "ubuntu2204", "ubuntu2404"], var.os)
+    error_message = "Only ubuntu2204, ubuntu2404 and debian 10 to 13 are supported"
   }
   default = "debian12"
 
