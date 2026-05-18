@@ -3,10 +3,12 @@
 resource "proxmox_virtual_environment_vm" "vm" {
   name      = var.hostname
   node_name = random_shuffle.selected_pve_host.result[0]
+  vm_id     = netbox_virtual_machine.vm.id + 10000
 
   lifecycle {
     ignore_changes = [
-      node_name
+      node_name,
+      vm_id
     ]
   }
 
