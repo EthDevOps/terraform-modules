@@ -10,13 +10,18 @@ variable "environment" {
   type = string
 }
 
-variable "htz_ssh_keys" {
-  type = list(string)
+variable "expire_date" {
+  type    = string
+  default = ""
+}
+
+variable "vm_ssh_keys" {
+  type    = list(string)
   default = []
 }
 
 variable "region" {
-  type = string
+  type    = string
   default = "nbg1"
 }
 
@@ -29,25 +34,37 @@ variable "role" {
 }
 
 variable "description" {
-  type = string
+  type    = string
   default = ""
-} 
+}
+
 variable "tags" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
 variable "services" {
   type = list(object({
-    name = string
-    proto = string
-    ports = list(number)
+    name          = string
+    proto         = string
+    port          = number
+    expose_mode   = optional(string, "off")
+    expose_auth   = optional(string, "none")
+    expose_ipv4   = optional(string, null)
+    internal_only = optional(bool, false)
+    teleport_name = optional(string, "")
+    expose_domain = optional(list(string), [])
+    balance_mode  = optional(string, "roundrobin")
   }))
   default = []
+  validation {
+    condition     = alltrue([for s in var.services : contains(["off", "l4", "l7", "teleport"], s.expose_mode)])
+    error_message = "expose_mode must be one of: 'off', 'l4', 'l7' or 'teleport'"
+  }
 }
 
 variable "size" {
-  type = string
+  type    = string
   default = "cx21"
 }
 
@@ -58,32 +75,31 @@ variable "configContext" {
 variable "os" {
   type = string
   validation {
-    condition     = contains(["debian10", "debian11", "debian12"], var.os)
-    error_message = "Only debian 10, 11 and 12 are supported"
+    condition     = contains(["debian10", "debian11", "debian12", "debian13", "ubuntu2404"], var.os)
+    error_message = "Only debian 10-13 and ubuntu2404 are supported"
   }
   default = "debian12"
-
 }
 
 variable "enable_ipv6" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "additional_volumes" {
   type = list(object({
-    name = string
+    name       = string
     size_in_gb = number
   }))
   default = []
 }
 
 variable "private_network_id" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "private_network_ipv4" {
-  type = string
+  type    = string
   default = ""
 }

@@ -129,7 +129,6 @@ resource "netbox_interface" "vm_eth1" {
   count              = var.enable_ceph ? 1 : 0
   name               = "eth1"
   virtual_machine_id = netbox_virtual_machine.vm.id
-  mac_address        = local.mac_address_ceph
 }
 resource "netbox_mac_address" "vm_eth1" {
   count              = var.enable_ceph ? 1 : 0

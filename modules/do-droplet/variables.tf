@@ -3,7 +3,7 @@ variable "team" {
 }
 
 variable "enable_ipv6" {
-  type = bool
+  type    = bool
   default = false
 }
 
@@ -16,11 +16,12 @@ variable "environment" {
 }
 
 variable "expire_date" {
-  type = string
+  type    = string
+  default = ""
 }
 
-variable "do_ssh_keys" {
-  type = list(string)
+variable "vm_ssh_keys" {
+  type    = list(string)
   default = []
 }
 
@@ -37,11 +38,11 @@ variable "role" {
 }
 
 variable "description" {
-  type = string
+  type    = string
   default = ""
-} 
+}
 variable "tags" {
-  type = list(string)
+  type    = list(string)
   default = []
 }
 
@@ -66,7 +67,7 @@ variable "services" {
 }
 
 variable "size" {
-  type = string
+  type    = string
   default = "s-2vcpu-4gb"
 }
 
@@ -77,7 +78,7 @@ variable "configContext" {
 variable "os" {
   type = string
   validation {
-    condition     = contains(["debian10", "debian11", "debian12","debian13", "ubuntu2404", "ubuntuml"], var.os)
+    condition     = contains(["debian10", "debian11", "debian12", "debian13", "ubuntu2404", "ubuntuml"], var.os)
     error_message = "Only ubuntu2404 and debian 10 to 13 are supported"
   }
   default = "debian12"
@@ -86,7 +87,7 @@ variable "os" {
 
 variable "additional_volumes" {
   type = list(object({
-    name = string
+    name       = string
     size_in_gb = number
   }))
   default = []
