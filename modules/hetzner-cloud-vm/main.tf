@@ -41,12 +41,20 @@ locals {
     debian13   = "Debian 13 - Trixie"
     ubuntu2404 = "Ubuntu 24.04 LTS"
   }
+  htz_locations = {
+    hel = "hel1"
+    nbg = "nbg1"
+    fsn = "fsn1"
+    ash = "ash"
+    hil = "hil"
+    sin = "sin"
+  }
 }
 
 resource "hcloud_server" "vm" {
   image       = lookup(local.os_images, var.os)
   name        = var.hostname
-  location    = var.region
+  location    = lookup(local.htz_locations, var.region)
   server_type = var.size
   labels = {
     "team" : local.team,
