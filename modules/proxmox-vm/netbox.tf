@@ -162,6 +162,7 @@ resource "netbox_service" "svc" {
     teleport_name = each.value.teleport_name
     internal_only = each.value.internal_only
     balance_mode = each.value.balance_mode
+    allow_http = each.value.allow_http
   }
 }
 
