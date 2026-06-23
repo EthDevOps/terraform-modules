@@ -99,6 +99,7 @@ variable "services" {
     expose_auth = optional(string, "none")
     expose_ipv4 = optional(string, null)
     internal_only = optional(bool, false)
+    allow_http = optional(bool, false)
     teleport_name = optional(string, "")
     expose_domain = optional(list(string), [])
     balance_mode = optional(string, "roundrobin")
