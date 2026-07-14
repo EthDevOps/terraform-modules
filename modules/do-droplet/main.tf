@@ -115,9 +115,11 @@ resource "netbox_virtual_machine" "vm" {
   description        = var.description
   tags               = var.tags
   custom_fields = {
-    project     = var.project
-    environment = var.environment
-    expire_date = var.expire_date
+    project                = var.project
+    environment            = var.environment
+    expire_date            = var.expire_date
+    teleport_groups        = join(",", var.teleport_groups)
+    teleport_allowed_users = join(",", var.teleport_allowed_users)
   }
 }
 

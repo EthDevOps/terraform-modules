@@ -6,6 +6,6 @@ terraform {
     hcloud = {
       source = "hetznercloud/hcloud"
     }
-  }  
+  }
 }
 

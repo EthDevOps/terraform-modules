@@ -93,3 +93,15 @@ variable "additional_volumes" {
   }))
   default = []
 }
+
+variable "teleport_groups" {
+  type        = list(string)
+  default     = []
+  description = "Teleport access groups for label-based VM access; rendered as group/group_N agent labels"
+}
+
+variable "teleport_allowed_users" {
+  type        = list(string)
+  default     = []
+  description = "Teleport usernames (email addresses of local users) granted direct access via allowed_user/allowed_user_N agent labels. GitHub-SSO usernames are GitHub handles, so direct grants reliably target local users only."
+}

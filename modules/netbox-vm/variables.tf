@@ -7,7 +7,7 @@ variable "project" {
 }
 
 variable "environment" {
-  type = string
+  type    = string
   default = "production"
 }
 
@@ -20,12 +20,12 @@ variable "hostname" {
 }
 
 variable "expire_date" {
-  type = string
+  type    = string
   default = ""
 }
 
 variable "role" {
-  type = string
+  type    = string
   default = "server"
 }
 
@@ -70,7 +70,7 @@ variable "services" {
 }
 
 variable "configContext" {
-  type = string
+  type    = string
   default = "{}"
 }
 
@@ -90,4 +90,16 @@ variable "additional_volumes" {
     size_in_gb = number
   }))
   default = []
+}
+
+variable "teleport_groups" {
+  type        = list(string)
+  default     = []
+  description = "Teleport access groups for label-based VM access; rendered as group/group_N agent labels"
+}
+
+variable "teleport_allowed_users" {
+  type        = list(string)
+  default     = []
+  description = "Teleport usernames (email addresses of local users) granted direct access via allowed_user/allowed_user_N agent labels. GitHub-SSO usernames are GitHub handles, so direct grants reliably target local users only."
 }

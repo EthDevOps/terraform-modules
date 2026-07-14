@@ -45,7 +45,7 @@ variable "vrf" {
   type = string
 }
 variable "expire_date" {
-  type = string
+  type    = string
   default = ""
 }
 variable "network_prefix6" {
@@ -55,14 +55,14 @@ variable "gateway_v4" {
   type = string
 }
 variable "dns_server" {
-  type = string
+  type    = string
   default = "10.128.2.1"
 }
 variable "gateway_v6" {
   type = string
 }
 variable "vlan_id" {
-  type = number
+  type    = number
   default = 11
 }
 
@@ -92,17 +92,17 @@ variable "tags" {
 
 variable "services" {
   type = list(object({
-    name  = string
-    proto = string
-    port = number
-    expose_mode = optional(string, "off")
-    expose_auth = optional(string, "none")
-    expose_ipv4 = optional(string, null)
+    name          = string
+    proto         = string
+    port          = number
+    expose_mode   = optional(string, "off")
+    expose_auth   = optional(string, "none")
+    expose_ipv4   = optional(string, null)
     internal_only = optional(bool, false)
-    allow_http = optional(bool, false)
+    allow_http    = optional(bool, false)
     teleport_name = optional(string, "")
     expose_domain = optional(list(string), [])
-    balance_mode = optional(string, "roundrobin")
+    balance_mode  = optional(string, "roundrobin")
   }))
   default = []
   validation {
@@ -117,27 +117,27 @@ variable "configContext" {
 variable "os" {
   type = string
   validation {
-    condition     = contains(["debian12","debian13","ubuntu2404","ubuntu2604"], var.os)
+    condition     = contains(["debian12", "debian13", "ubuntu2404", "ubuntu2604"], var.os)
     error_message = "Only debian12, debian13, ubuntu2404, ubuntu2604 is supported"
   }
   default = "debian13"
 
 }
 variable "storage_optimized" {
-  type = bool
+  type    = bool
   default = false
 }
 
 variable "pve_template_host" {
-  type = string
+  type    = string
   default = "colo-pxe-01"
 }
 variable "pve_target_storage" {
-  type = string
+  type    = string
   default = "vm-storage"
 }
 variable "pve_network_bridge" {
-  type = string
+  type    = string
   default = "vmbr1"
 }
 
@@ -145,4 +145,16 @@ variable "extra_disk_size" {
   type        = number
   description = "Size of the additional disk in GB. Set to null to disable the extra disk."
   default     = null
+}
+
+variable "teleport_groups" {
+  type        = list(string)
+  default     = []
+  description = "Teleport access groups for label-based VM access; rendered as group/group_N agent labels"
+}
+
+variable "teleport_allowed_users" {
+  type        = list(string)
+  default     = []
+  description = "Teleport usernames (email addresses of local users) granted direct access via allowed_user/allowed_user_N agent labels. GitHub-SSO usernames are GitHub handles, so direct grants reliably target local users only."
 }

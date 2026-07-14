@@ -42,8 +42,8 @@ locals {
   pvc_nodes = keys(local.pvc_templates)
 
   platform = {
-    debian12 = "Debian 12 - Bookworm"
-    debian13 = "Debian 13 - Trixie"
+    debian12   = "Debian 12 - Bookworm"
+    debian13   = "Debian 13 - Trixie"
     ubuntu2404 = "Ubuntu 24.04 LTS"
     ubuntu2604 = "Ubuntu 26.04 LTS"
   }
@@ -104,9 +104,11 @@ resource "netbox_virtual_machine" "vm" {
   description        = var.description
   tags               = var.tags
   custom_fields = {
-    project     = var.project
-    environment = var.environment
-    expire_date = var.expire_date
+    project                = var.project
+    environment            = var.environment
+    expire_date            = var.expire_date
+    teleport_groups        = join(",", var.teleport_groups)
+    teleport_allowed_users = join(",", var.teleport_allowed_users)
   }
 }
 
@@ -121,7 +123,7 @@ resource "netbox_interface" "vm_eth0" {
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 resource "netbox_mac_address" "vm_eth0" {
-  mac_address        = local.mac_address
+  mac_address                  = local.mac_address
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
 }
 
@@ -131,19 +133,19 @@ resource "netbox_interface" "vm_eth1" {
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 resource "netbox_mac_address" "vm_eth1" {
-  count              = var.enable_ceph ? 1 : 0
-  mac_address        = local.mac_address_ceph
+  count                        = var.enable_ceph ? 1 : 0
+  mac_address                  = local.mac_address_ceph
   virtual_machine_interface_id = netbox_interface.vm_eth1[0].id
 }
 
 resource "netbox_primary_ip" "vm_primary_ip" {
-  depends_on = [netbox_available_ip_address.vm_ip,netbox_virtual_machine.vm,netbox_interface.vm_eth0]
+  depends_on         = [netbox_available_ip_address.vm_ip, netbox_virtual_machine.vm, netbox_interface.vm_eth0]
   ip_address_id      = netbox_available_ip_address.vm_ip.id
   virtual_machine_id = netbox_virtual_machine.vm.id
 }
 
 resource "netbox_primary_ip" "vm_primary_ip6" {
-  depends_on = [netbox_primary_ip.vm_primary_ip]
+  depends_on         = [netbox_primary_ip.vm_primary_ip]
   ip_address_id      = netbox_available_ip_address.vm_ip6.id
   virtual_machine_id = netbox_virtual_machine.vm.id
   ip_address_version = 6
@@ -156,13 +158,13 @@ resource "netbox_service" "svc" {
   protocol           = each.value.proto
   virtual_machine_id = netbox_virtual_machine.vm.id
   custom_fields = {
-    expose_mode = each.value.expose_mode
+    expose_mode   = each.value.expose_mode
     expose_domain = join(",", each.value.expose_domain)
-    expose_auth = each.value.expose_auth
+    expose_auth   = each.value.expose_auth
     teleport_name = each.value.teleport_name
     internal_only = each.value.internal_only
-    balance_mode = each.value.balance_mode
-    allow_http = each.value.allow_http
+    balance_mode  = each.value.balance_mode
+    allow_http    = each.value.allow_http
   }
 }
 
