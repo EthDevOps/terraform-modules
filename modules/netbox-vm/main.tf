@@ -31,6 +31,7 @@ locals {
     ubuntu2004 = "Ubuntu 20.04 LTS"
     ubuntu2204 = "Ubuntu 22.04 LTS"
     ubuntu2404 = "Ubuntu 24.04 LTS"
+    ubuntu2604 = "Ubuntu 26.04 LTS"
   }
 }
 
