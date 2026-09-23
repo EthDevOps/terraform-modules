@@ -8,7 +8,8 @@ resource "proxmox_virtual_environment_vm" "vm" {
   lifecycle {
     ignore_changes = [
       node_name,
-      vm_id
+      vm_id,
+      initialization
     ]
   }
 
