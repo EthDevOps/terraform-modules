@@ -160,7 +160,6 @@ resource "netbox_service" "svc" {
     expose_domain = join(",", each.value.expose_domain)
     expose_auth   = each.value.expose_auth
     internal_name = each.value.internal_name
-    internal_only = each.value.internal_only
     balance_mode  = each.value.balance_mode
     allow_http    = each.value.allow_http
   }

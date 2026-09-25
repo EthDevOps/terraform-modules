@@ -98,7 +98,6 @@ variable "services" {
     expose_mode   = optional(string, "off")
     expose_auth   = optional(string, "none")
     expose_ipv4   = optional(string, null)
-    internal_only = optional(bool, false)
     allow_http    = optional(bool, false)
     internal_name = optional(string, "")
     expose_domain = optional(list(string), [])
