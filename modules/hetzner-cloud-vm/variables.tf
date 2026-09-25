@@ -121,3 +121,13 @@ variable "warpgate_origin_v6" {
   default     = null
   description = "Optional IPv6 CIDR of the warpgate origin for SSH when restrict_ssh is enabled."
 }
+
+variable "restrict_to_services" {
+  type        = bool
+  default     = false
+  description = "Restrict inbound traffic to the ports defined in services (allowed from 0.0.0.0/0), dropping everything else. Port 22 is ignored here and governed solely by restrict_ssh."
+  validation {
+    condition     = !var.restrict_to_services || var.restrict_ssh || length([for s in var.services : s if s.port != 22]) > 0
+    error_message = "restrict_to_services needs at least one non-SSH service (or restrict_ssh enabled) so the firewall has at least one inbound rule."
+  }
+}

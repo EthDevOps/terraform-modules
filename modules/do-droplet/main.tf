@@ -69,8 +69,8 @@ output "ipv6" {
 }
 
 output "firewall_id" {
-  value       = var.restrict_ssh ? digitalocean_firewall.ssh_restriction[0].id : null
-  description = "ID of the SSH-restriction CSP firewall, when restrict_ssh is enabled"
+  value       = local.firewall_enabled ? digitalocean_firewall.ssh_restriction[0].id : null
+  description = "ID of the CSP firewall, when restrict_ssh or restrict_to_services is enabled"
 }
 
 # Create a new Web Droplet in the nyc2 region
@@ -89,20 +89,54 @@ resource "digitalocean_droplet" "vm" {
   ssh_keys = [for i in data.digitalocean_ssh_keys.keys.ssh_keys : i.id]
 }
 
+locals {
+  firewall_enabled = var.restrict_ssh || var.restrict_to_services
+
+  # Per-service inbound rules, open from anywhere (IPv4). Port 22 is skipped —
+  # SSH is governed solely by restrict_ssh.
+  service_rules = flatten([
+    for s in var.services : s.port == 22 ? [] : [{
+      protocol     = s.proto
+      port_range   = tostring(s.port)
+      source_addrs = ["0.0.0.0/0"]
+    }]
+  ])
+
+  # Catch-all rules only in SSH-only mode. DO firewalls are pure allow-lists,
+  # so the tcp catch-all is split around port 22 to keep SSH from non-warpgate
+  # sources blocked.
+  catchall_rules_v4 = var.restrict_to_services ? [] : [
+    { protocol = "tcp", port_range = "0-21" },
+    { protocol = "tcp", port_range = "23-65535" },
+    { protocol = "udp", port_range = "0-65535" },
+    { protocol = "sctp", port_range = "0-65535" },
+  ]
+  catchall_rules_v6 = var.restrict_to_services || !var.enable_ipv6 ? [] : [
+    { protocol = "tcp", port_range = "0-21" },
+    { protocol = "tcp", port_range = "23-65535" },
+    { protocol = "udp", port_range = "0-65535" },
+    { protocol = "sctp", port_range = "0-65535" },
+  ]
+}
+
 resource "digitalocean_firewall" "ssh_restriction" {
-  count = var.restrict_ssh ? 1 : 0
+  count = local.firewall_enabled ? 1 : 0
 
   name        = "${var.hostname}-ssh-warpgate"
   droplet_ids = [digitalocean_droplet.vm.id]
 
-  inbound_rule {
-    protocol         = "tcp"
-    port_range       = "22"
-    source_addresses = var.warpgate_origin_v4
+  dynamic "inbound_rule" {
+    for_each = var.restrict_ssh ? [1] : []
+
+    content {
+      protocol         = "tcp"
+      port_range       = "22"
+      source_addresses = var.warpgate_origin_v4
+    }
   }
 
   dynamic "inbound_rule" {
-    for_each = var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+    for_each = var.restrict_ssh && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
 
     content {
       protocol         = "tcp"
@@ -111,30 +145,32 @@ resource "digitalocean_firewall" "ssh_restriction" {
     }
   }
 
-  inbound_rule {
-    protocol         = "tcp"
-    port_range       = "0-65535"
-    source_addresses = ["0.0.0.0/0"]
-  }
+  dynamic "inbound_rule" {
+    for_each = var.restrict_to_services ? local.service_rules : []
 
-  inbound_rule {
-    protocol         = "udp"
-    port_range       = "0-65535"
-    source_addresses = ["0.0.0.0/0"]
-  }
-
-  inbound_rule {
-    protocol         = "sctp"
-    port_range       = "0-65535"
-    source_addresses = ["0.0.0.0/0"]
+    content {
+      protocol         = inbound_rule.value.protocol
+      port_range       = inbound_rule.value.port_range
+      source_addresses = inbound_rule.value.source_addrs
+    }
   }
 
   dynamic "inbound_rule" {
-    for_each = var.enable_ipv6 ? ["tcp", "udp", "sctp"] : []
+    for_each = local.catchall_rules_v4
 
     content {
-      protocol         = inbound_rule.value
-      port_range       = "0-65535"
+      protocol         = inbound_rule.value.protocol
+      port_range       = inbound_rule.value.port_range
+      source_addresses = ["0.0.0.0/0"]
+    }
+  }
+
+  dynamic "inbound_rule" {
+    for_each = local.catchall_rules_v6
+
+    content {
+      protocol         = inbound_rule.value.protocol
+      port_range       = inbound_rule.value.port_range
       source_addresses = ["::/0"]
     }
   }

@@ -70,8 +70,37 @@ resource "hcloud_server" "vm" {
   }
 }
 
+locals {
+  firewall_enabled = var.restrict_ssh || var.restrict_to_services
+
+  # Per-service inbound rules, open from anywhere (IPv4). Port 22 is skipped —
+  # SSH is governed solely by restrict_ssh.
+  service_rules = flatten([
+    for s in var.services : s.port == 22 ? [] : [{
+      protocol   = s.proto
+      port       = tostring(s.port)
+      source_ips = ["0.0.0.0/0"]
+    }]
+  ])
+
+  # Catch-all rules only in SSH-only mode. Hetzner firewalls are pure
+  # allow-lists, so the tcp catch-all is split around port 22 to keep SSH from
+  # non-warpgate sources blocked.
+  catchall_rules_v4 = var.restrict_to_services ? [] : [
+    { protocol = "tcp", port = "0-21" },
+    { protocol = "tcp", port = "23-65535" },
+    { protocol = "udp", port = "0-65535" },
+  ]
+  catchall_rules_v6 = var.restrict_to_services || !var.enable_ipv6 ? [] : [
+    { protocol = "tcp", port = "0-21" },
+    { protocol = "tcp", port = "23-65535" },
+    { protocol = "udp", port = "0-65535" },
+  ]
+  icmp_sources = var.restrict_to_services ? [] : concat(["0.0.0.0/0"], var.enable_ipv6 ? ["::/0"] : [])
+}
+
 resource "hcloud_firewall" "ssh_restriction" {
-  count = var.restrict_ssh ? 1 : 0
+  count = local.firewall_enabled ? 1 : 0
 
   name = "${var.hostname}-ssh-warpgate"
 
@@ -79,15 +108,19 @@ resource "hcloud_firewall" "ssh_restriction" {
     server = hcloud_server.vm.id
   }
 
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "22"
-    source_ips = var.warpgate_origin_v4
+  dynamic "rule" {
+    for_each = var.restrict_ssh ? [1] : []
+
+    content {
+      direction  = "in"
+      protocol   = "tcp"
+      port       = "22"
+      source_ips = var.warpgate_origin_v4
+    }
   }
 
   dynamic "rule" {
-    for_each = var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+    for_each = var.restrict_ssh && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
 
     content {
       direction  = "in"
@@ -97,24 +130,47 @@ resource "hcloud_firewall" "ssh_restriction" {
     }
   }
 
-  rule {
-    direction  = "in"
-    protocol   = "tcp"
-    port       = "0-65535"
-    source_ips = var.enable_ipv6 ? ["0.0.0.0/0", "::/0"] : ["0.0.0.0/0"]
+  dynamic "rule" {
+    for_each = var.restrict_to_services ? local.service_rules : []
+
+    content {
+      direction  = "in"
+      protocol   = rule.value.protocol
+      port       = rule.value.port
+      source_ips = rule.value.source_ips
+    }
   }
 
-  rule {
-    direction  = "in"
-    protocol   = "udp"
-    port       = "0-65535"
-    source_ips = var.enable_ipv6 ? ["0.0.0.0/0", "::/0"] : ["0.0.0.0/0"]
+  dynamic "rule" {
+    for_each = local.catchall_rules_v4
+
+    content {
+      direction  = "in"
+      protocol   = rule.value.protocol
+      port       = rule.value.port
+      source_ips = ["0.0.0.0/0"]
+    }
   }
 
-  rule {
-    direction  = "in"
-    protocol   = "icmp"
-    source_ips = var.enable_ipv6 ? ["0.0.0.0/0", "::/0"] : ["0.0.0.0/0"]
+  dynamic "rule" {
+    for_each = local.catchall_rules_v6
+
+    content {
+      direction  = "in"
+      protocol   = rule.value.protocol
+      port       = rule.value.port
+      source_ips = ["::/0"]
+    }
+  }
+
+  dynamic "rule" {
+    for_each = local.icmp_sources
+
+    content {
+      direction  = "in"
+      protocol   = "icmp"
+      source_ips = [rule.value]
+    }
   }
 }
 
@@ -155,9 +211,9 @@ resource "netbox_virtual_machine" "vm" {
   description        = var.description
   tags               = var.tags
   custom_fields = {
-    project                = var.project
-    environment            = var.environment
-    expire_date            = var.expire_date
+    project     = var.project
+    environment = var.environment
+    expire_date = var.expire_date
   }
 }
 
@@ -249,6 +305,6 @@ output "ipv6" {
 }
 
 output "firewall_id" {
-  value       = var.restrict_ssh ? hcloud_firewall.ssh_restriction[0].id : null
-  description = "ID of the SSH-restriction firewall, when restrict_ssh is enabled"
+  value       = local.firewall_enabled ? hcloud_firewall.ssh_restriction[0].id : null
+  description = "ID of the firewall, when restrict_ssh or restrict_to_services is enabled"
 }
