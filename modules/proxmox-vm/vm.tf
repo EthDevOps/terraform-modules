@@ -107,6 +107,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
     bridge      = var.pve_network_bridge
     mac_address = local.mac_address
     vlan_id     = var.vlan_id
+    firewall    = true
   }
 
   dynamic "network_device" {
@@ -124,33 +125,78 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 }
 
-resource "proxmox_virtual_environment_firewall_options" "ssh_restriction" {
-  count = var.restrict_ssh ? 1 : 0
+locals {
+  firewall_enabled = var.restrict_ssh || var.restrict_to_services
+
+  # Per-service source CIDRs for restrict_to_services, split by IP family
+  # (PVE rule sources cannot mix IPv4 and IPv6). Precedence:
+  # internal_only -> warpgate origins, expose_mode l4/l7 -> loadbalancers,
+  # anything else (off/teleport) -> open.
+  svc_sources_v4 = {
+    for s in var.services : s.name => (
+      s.internal_only ? var.warpgate_origin_v4 :
+      contains(["l4", "l7"], s.expose_mode) ? var.loadbalancer_ips :
+      ["0.0.0.0/0"]
+    )
+  }
+
+  svc_sources_v6 = {
+    for s in var.services : s.name => (
+      s.internal_only && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+    )
+  }
+
+  # Flat list of accept rule specs, one per (service, IP family). Port 22 is
+  # skipped — SSH is governed solely by restrict_ssh.
+  service_rule_specs = flatten([
+    for s in var.services : s.port == 22 ? [] : concat(
+      length(local.svc_sources_v4[s.name]) > 0 ? [{
+        proto   = s.proto
+        port    = s.port
+        source  = join(",", local.svc_sources_v4[s.name])
+        comment = "Allow ${s.name} (${s.proto}/${s.port}) from ${join(",", local.svc_sources_v4[s.name])}"
+      }] : [],
+      length(local.svc_sources_v6[s.name]) > 0 ? [{
+        proto   = s.proto
+        port    = s.port
+        source  = join(",", local.svc_sources_v6[s.name])
+        comment = "Allow ${s.name} (${s.proto}/${s.port}) from ${join(",", local.svc_sources_v6[s.name])} (IPv6)"
+      }] : []
+    )
+  ])
+}
+
+resource "proxmox_virtual_environment_firewall_options" "restrict" {
+  count = local.firewall_enabled ? 1 : 0
 
   node_name     = proxmox_virtual_environment_vm.vm.node_name
   vm_id         = proxmox_virtual_environment_vm.vm.vm_id
   enabled       = true
-  input_policy  = "ACCEPT"
+  input_policy  = var.restrict_to_services ? "DROP" : "ACCEPT"
   output_policy = "ACCEPT"
 }
 
-resource "proxmox_virtual_environment_firewall_rules" "ssh_restriction" {
-  count = var.restrict_ssh ? 1 : 0
+resource "proxmox_virtual_environment_firewall_rules" "restrict" {
+  count = local.firewall_enabled ? 1 : 0
 
   node_name = proxmox_virtual_environment_vm.vm.node_name
   vm_id     = proxmox_virtual_environment_vm.vm.vm_id
 
-  rule {
-    type    = "in"
-    action  = "ACCEPT"
-    dport   = "22"
-    proto   = "tcp"
-    source  = join(",", var.warpgate_origin_v4)
-    comment = "Allow SSH from warpgate origins (IPv4)"
+  dynamic "rule" {
+    for_each = var.restrict_ssh ? [1] : []
+
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      dport   = "22"
+      proto   = "tcp"
+      source  = join(",", var.warpgate_origin_v4)
+      comment = "Allow SSH from warpgate origins (IPv4)"
+    }
   }
 
   dynamic "rule" {
-    for_each = var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+    for_each = var.restrict_ssh && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
 
     content {
       type    = "in"
@@ -162,18 +208,39 @@ resource "proxmox_virtual_environment_firewall_rules" "ssh_restriction" {
     }
   }
 
-  rule {
-    type    = "in"
-    action  = "DROP"
-    dport   = "22"
-    proto   = "tcp"
-    comment = "Drop SSH from all other sources"
+  dynamic "rule" {
+    for_each = var.restrict_ssh ? [1] : []
+
+    content {
+      type    = "in"
+      action  = "DROP"
+      dport   = "22"
+      proto   = "tcp"
+      comment = "Drop SSH from all other sources"
+    }
   }
 
-  rule {
-    type    = "in"
-    action  = "ACCEPT"
-    comment = "Allow all other inbound traffic"
+  dynamic "rule" {
+    for_each = var.restrict_to_services ? local.service_rule_specs : []
+
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      dport   = tostring(rule.value.port)
+      proto   = rule.value.proto
+      source  = rule.value.source
+      comment = rule.value.comment
+    }
+  }
+
+  dynamic "rule" {
+    for_each = !var.restrict_to_services ? [1] : []
+
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      comment = "Allow all other inbound traffic"
+    }
   }
 }
 
@@ -190,6 +257,6 @@ output "mac" {
 }
 
 output "firewall_id" {
-  value       = var.restrict_ssh ? proxmox_virtual_environment_firewall_rules.ssh_restriction[0].id : null
-  description = "ID of the SSH-restriction firewall rules, when restrict_ssh is enabled"
+  value       = local.firewall_enabled ? proxmox_virtual_environment_firewall_rules.restrict[0].id : null
+  description = "ID of the VM firewall rules, when restrict_ssh or restrict_to_services is enabled"
 }

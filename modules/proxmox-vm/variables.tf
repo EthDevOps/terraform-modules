@@ -164,3 +164,15 @@ variable "warpgate_origin_v6" {
   default     = null
   description = "Optional IPv6 CIDR of the warpgate origin for SSH when restrict_ssh is enabled."
 }
+
+variable "restrict_to_services" {
+  type        = bool
+  default     = false
+  description = "Restrict inbound traffic to the ports defined in services, dropping everything else. Port 22 is ignored here and governed solely by restrict_ssh."
+}
+
+variable "loadbalancer_ips" {
+  type        = list(string)
+  default     = ["10.128.2.3/32", "10.128.2.4/32"]
+  description = "IPv4 CIDRs of the loadbalancers; the only sources allowed for services with expose_mode l4/l7 when restrict_to_services is enabled."
+}
