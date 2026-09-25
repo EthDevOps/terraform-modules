@@ -129,12 +129,12 @@ locals {
   firewall_enabled = var.restrict_ssh || var.restrict_to_services
 
   # Per-service source CIDRs for restrict_to_services, split by IP family
-  # (PVE rule sources cannot mix IPv4 and IPv6). Precedence:
-  # internal_only -> warpgate origins, expose_mode l4/l7 -> loadbalancers,
-  # anything else (off/teleport) -> open.
+  # (PVE rule sources cannot mix IPv4 and IPv6):
+  # expose_mode internal -> warpgate origins, l4/l7 -> loadbalancers,
+  # anything else (off) -> open.
   svc_sources_v4 = {
     for s in var.services : s.name => (
-      s.internal_only ? var.warpgate_origin_v4 :
+      s.expose_mode == "internal" ? var.warpgate_origin_v4 :
       contains(["l4", "l7"], s.expose_mode) ? var.loadbalancer_ips :
       ["0.0.0.0/0"]
     )
@@ -142,7 +142,7 @@ locals {
 
   svc_sources_v6 = {
     for s in var.services : s.name => (
-      s.internal_only && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+      s.expose_mode == "internal" && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
     )
   }
 

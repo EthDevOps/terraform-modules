@@ -48,10 +48,10 @@ variable "tags" {
 
 variable "services" {
   type = list(object({
-    name            = string
-    proto           = string
-    port            = number
-    expose_domain   = optional(list(string), [])
+    name          = string
+    proto         = string
+    port          = number
+    expose_domain = optional(list(string), [])
   }))
   default = []
 }
