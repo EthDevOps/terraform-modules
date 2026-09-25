@@ -107,8 +107,6 @@ resource "netbox_virtual_machine" "vm" {
     project                = var.project
     environment            = var.environment
     expire_date            = var.expire_date
-    teleport_groups        = join(",", var.teleport_groups)
-    teleport_allowed_users = join(",", var.teleport_allowed_users)
   }
 }
 
@@ -161,7 +159,7 @@ resource "netbox_service" "svc" {
     expose_mode   = each.value.expose_mode
     expose_domain = join(",", each.value.expose_domain)
     expose_auth   = each.value.expose_auth
-    teleport_name = each.value.teleport_name
+    internal_name = each.value.internal_name
     internal_only = each.value.internal_only
     balance_mode  = each.value.balance_mode
     allow_http    = each.value.allow_http

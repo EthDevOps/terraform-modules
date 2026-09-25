@@ -70,6 +70,54 @@ resource "hcloud_server" "vm" {
   }
 }
 
+resource "hcloud_firewall" "ssh_restriction" {
+  count = var.restrict_ssh ? 1 : 0
+
+  name = "${var.hostname}-ssh-warpgate"
+
+  apply_to {
+    server = hcloud_server.vm.id
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = "22"
+    source_ips = var.warpgate_origin_v4
+  }
+
+  dynamic "rule" {
+    for_each = var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+
+    content {
+      direction  = "in"
+      protocol   = "tcp"
+      port       = "22"
+      source_ips = [rule.value]
+    }
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "tcp"
+    port       = "0-65535"
+    source_ips = var.enable_ipv6 ? ["0.0.0.0/0", "::/0"] : ["0.0.0.0/0"]
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "udp"
+    port       = "0-65535"
+    source_ips = var.enable_ipv6 ? ["0.0.0.0/0", "::/0"] : ["0.0.0.0/0"]
+  }
+
+  rule {
+    direction  = "in"
+    protocol   = "icmp"
+    source_ips = var.enable_ipv6 ? ["0.0.0.0/0", "::/0"] : ["0.0.0.0/0"]
+  }
+}
+
 resource "hcloud_server_network" "srvnetwork" {
   count      = var.private_network_id != "" ? 1 : 0
   server_id  = hcloud_server.vm.id
@@ -110,8 +158,6 @@ resource "netbox_virtual_machine" "vm" {
     project                = var.project
     environment            = var.environment
     expire_date            = var.expire_date
-    teleport_groups        = join(",", var.teleport_groups)
-    teleport_allowed_users = join(",", var.teleport_allowed_users)
   }
 }
 
@@ -151,7 +197,6 @@ resource "netbox_ip_address" "vm_eth0_ip4" {
   ip_address                   = "${hcloud_server.vm.ipv4_address}/32"
   status                       = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
-  dns_name                     = "${var.hostname}.teleport.ethquokkaops.io"
 }
 
 resource "netbox_ip_address" "vm_eth0_ip6" {
@@ -159,7 +204,6 @@ resource "netbox_ip_address" "vm_eth0_ip6" {
   ip_address                   = "${hcloud_server.vm.ipv6_address}/64"
   status                       = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
-  dns_name                     = "${var.hostname}.teleport.ethquokkaops.io"
 }
 
 resource "netbox_interface" "vm_priv" {
@@ -185,7 +229,7 @@ resource "netbox_service" "svc" {
     expose_mode   = each.value.expose_mode
     expose_domain = join(",", each.value.expose_domain)
     expose_auth   = each.value.expose_auth
-    teleport_name = each.value.teleport_name
+    internal_name = each.value.internal_name
     internal_only = each.value.internal_only
     balance_mode  = each.value.balance_mode
   }
@@ -202,4 +246,9 @@ output "ipv4" {
 
 output "ipv6" {
   value = var.enable_ipv6 ? hcloud_server.vm.ipv6_address : null
+}
+
+output "firewall_id" {
+  value       = var.restrict_ssh ? hcloud_firewall.ssh_restriction[0].id : null
+  description = "ID of the SSH-restriction firewall, when restrict_ssh is enabled"
 }

@@ -48,17 +48,17 @@ variable "tags" {
 
 variable "services" {
   type = list(object({
-    name          = string
-    proto         = string
-    port          = number
-    expose_mode   = optional(string, "off")
-    expose_auth   = optional(string, "none")
-    expose_ipv4   = optional(string, null)
-    internal_only = optional(bool, false)
+    name            = string
+    proto           = string
+    port            = number
+    expose_mode     = optional(string, "off")
+    expose_auth     = optional(string, "none")
+    expose_ipv4     = optional(string, null)
+    internal_only   = optional(bool, false)
     internal_domain = optional(string, "")
-    expose_domain = optional(list(string), [])
-    balance_mode  = optional(string, "roundrobin")
-    allow_http    = optional(bool, false)
+    expose_domain   = optional(list(string), [])
+    balance_mode    = optional(string, "roundrobin")
+    allow_http      = optional(bool, false)
   }))
   default = []
   validation {
@@ -101,9 +101,9 @@ variable "restrict_ssh" {
 }
 
 variable "warpgate_origin_v4" {
-  type        = string
-  default     = "212.99.218.66/32"
-  description = "IPv4 CIDR of the warpgate origin allowed to reach SSH when restrict_ssh is enabled."
+  type        = list(string)
+  default     = ["212.99.218.66/32"]
+  description = "IPv4 CIDRs of the warpgate origins allowed to reach SSH when restrict_ssh is enabled."
 }
 
 variable "warpgate_origin_v6" {

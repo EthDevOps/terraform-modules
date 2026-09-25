@@ -98,7 +98,7 @@ resource "digitalocean_firewall" "ssh_restriction" {
   inbound_rule {
     protocol         = "tcp"
     port_range       = "22"
-    source_addresses = [var.warpgate_origin_v4]
+    source_addresses = var.warpgate_origin_v4
   }
 
   dynamic "inbound_rule" {
@@ -171,9 +171,9 @@ resource "netbox_virtual_machine" "vm" {
   description        = var.description
   tags               = var.tags
   custom_fields = {
-    project                = var.project
-    environment            = var.environment
-    expire_date            = var.expire_date
+    project     = var.project
+    environment = var.environment
+    expire_date = var.expire_date
   }
 }
 

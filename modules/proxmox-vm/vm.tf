@@ -124,6 +124,59 @@ resource "proxmox_virtual_environment_vm" "vm" {
   }
 }
 
+resource "proxmox_virtual_environment_firewall_options" "ssh_restriction" {
+  count = var.restrict_ssh ? 1 : 0
+
+  node_name     = proxmox_virtual_environment_vm.vm.node_name
+  vm_id         = proxmox_virtual_environment_vm.vm.vm_id
+  enabled       = true
+  input_policy  = "ACCEPT"
+  output_policy = "ACCEPT"
+}
+
+resource "proxmox_virtual_environment_firewall_rules" "ssh_restriction" {
+  count = var.restrict_ssh ? 1 : 0
+
+  node_name = proxmox_virtual_environment_vm.vm.node_name
+  vm_id     = proxmox_virtual_environment_vm.vm.vm_id
+
+  rule {
+    type    = "in"
+    action  = "ACCEPT"
+    dport   = "22"
+    proto   = "tcp"
+    source  = join(",", var.warpgate_origin_v4)
+    comment = "Allow SSH from warpgate origins (IPv4)"
+  }
+
+  dynamic "rule" {
+    for_each = var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+
+    content {
+      type    = "in"
+      action  = "ACCEPT"
+      dport   = "22"
+      proto   = "tcp"
+      source  = rule.value
+      comment = "Allow SSH from warpgate origin (IPv6)"
+    }
+  }
+
+  rule {
+    type    = "in"
+    action  = "DROP"
+    dport   = "22"
+    proto   = "tcp"
+    comment = "Drop SSH from all other sources"
+  }
+
+  rule {
+    type    = "in"
+    action  = "ACCEPT"
+    comment = "Allow all other inbound traffic"
+  }
+}
+
 
 
 output "ipv4" {
@@ -134,4 +187,9 @@ output "ipv6" {
 }
 output "mac" {
   value = local.mac_address
+}
+
+output "firewall_id" {
+  value       = var.restrict_ssh ? proxmox_virtual_environment_firewall_rules.ssh_restriction[0].id : null
+  description = "ID of the SSH-restriction firewall rules, when restrict_ssh is enabled"
 }

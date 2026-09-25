@@ -51,8 +51,6 @@ resource "netbox_virtual_machine" "vm" {
     project                = var.project
     environment            = var.environment
     expire_date            = var.expire_date
-    teleport_groups        = join(",", var.teleport_groups)
-    teleport_allowed_users = join(",", var.teleport_allowed_users)
   }
 }
 
@@ -96,7 +94,6 @@ resource "netbox_ip_address" "vm_ip4" {
   ip_address                   = each.value.ipv4_address
   status                       = "active"
   virtual_machine_interface_id = netbox_interface.vm_nic[each.key].id
-  dns_name                     = "${var.hostname}.teleport.ethquokkaops.io"
 }
 
 resource "netbox_ip_address" "vm_ip6" {
@@ -105,7 +102,6 @@ resource "netbox_ip_address" "vm_ip6" {
   ip_address                   = each.value.ipv6_address
   status                       = "active"
   virtual_machine_interface_id = netbox_interface.vm_nic[each.key].id
-  dns_name                     = "${var.hostname}.teleport.ethquokkaops.io"
 }
 
 resource "netbox_service" "svc" {

@@ -52,14 +52,14 @@ variable "services" {
     expose_auth   = optional(string, "none")
     expose_ipv4   = optional(string, null)
     internal_only = optional(bool, false)
-    teleport_name = optional(string, "")
+    internal_name = optional(string, "")
     expose_domain = optional(list(string), [])
     balance_mode  = optional(string, "roundrobin")
   }))
   default = []
   validation {
-    condition     = alltrue([for s in var.services : contains(["off", "l4", "l7", "teleport"], s.expose_mode)])
-    error_message = "expose_mode must be one of: 'off', 'l4', 'l7' or 'teleport'"
+    condition     = alltrue([for s in var.services : contains(["off", "l4", "l7", "internal"], s.expose_mode)])
+    error_message = "expose_mode must be one of: 'off', 'l4', 'l7' or 'internal'"
   }
 }
 
@@ -104,14 +104,20 @@ variable "private_network_ipv4" {
   default = ""
 }
 
-variable "teleport_groups" {
-  type        = list(string)
-  default     = []
-  description = "Teleport access groups for label-based VM access; rendered as group/group_N agent labels"
+variable "restrict_ssh" {
+  type        = bool
+  default     = false
+  description = "Restrict inbound SSH (tcp/22) to the warpgate origin via a Hetzner Cloud firewall. All other inbound traffic remains allowed via catch-all rules."
 }
 
-variable "teleport_allowed_users" {
+variable "warpgate_origin_v4" {
   type        = list(string)
-  default     = []
-  description = "Teleport usernames (email addresses of local users) granted direct access via allowed_user/allowed_user_N agent labels. GitHub-SSO usernames are GitHub handles, so direct grants reliably target local users only."
+  default     = ["212.99.218.66/32"]
+  description = "IPv4 CIDRs of the warpgate origins allowed to reach SSH when restrict_ssh is enabled."
+}
+
+variable "warpgate_origin_v6" {
+  type        = string
+  default     = null
+  description = "Optional IPv6 CIDR of the warpgate origin for SSH when restrict_ssh is enabled."
 }
