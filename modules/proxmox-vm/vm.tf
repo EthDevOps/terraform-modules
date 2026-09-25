@@ -131,7 +131,8 @@ locals {
   # Per-service source CIDRs for restrict_to_services, split by IP family
   # (PVE rule sources cannot mix IPv4 and IPv6):
   # expose_mode internal -> warpgate origins, l4/l7 -> loadbalancers,
-  # anything else (off) -> open.
+  # anything else (off) -> open. The v6 map mirrors open sources to ::/0
+  # only when the VM has IPv6 (enable_ipv6).
   svc_sources_v4 = {
     for s in var.services : s.name => (
       s.expose_mode == "internal" ? var.warpgate_origin_v4 :
@@ -142,7 +143,9 @@ locals {
 
   svc_sources_v6 = {
     for s in var.services : s.name => (
-      s.expose_mode == "internal" && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+      s.expose_mode == "internal" && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] :
+      !contains(["l4", "l7", "internal"], s.expose_mode) && var.enable_ipv6 ? ["::/0"] :
+      []
     )
   }
 
@@ -196,7 +199,7 @@ resource "proxmox_virtual_environment_firewall_rules" "restrict" {
   }
 
   dynamic "rule" {
-    for_each = var.restrict_ssh && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+    for_each = var.restrict_ssh && var.enable_ipv6 && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
 
     content {
       type    = "in"

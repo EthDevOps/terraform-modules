@@ -73,13 +73,13 @@ resource "hcloud_server" "vm" {
 locals {
   firewall_enabled = var.restrict_ssh || var.restrict_to_services
 
-  # Per-service inbound rules, open from anywhere (IPv4). Port 22 is skipped —
-  # SSH is governed solely by restrict_ssh.
+  # Per-service inbound rules, open from anywhere. Mirrored to IPv6 when the
+  # host has IPv6. Port 22 is skipped — SSH is governed solely by restrict_ssh.
   service_rules = flatten([
     for s in var.services : s.port == 22 ? [] : [{
       protocol   = s.proto
       port       = tostring(s.port)
-      source_ips = ["0.0.0.0/0"]
+      source_ips = var.enable_ipv6 ? ["0.0.0.0/0", "::/0"] : ["0.0.0.0/0"]
     }]
   ])
 
@@ -120,7 +120,7 @@ resource "hcloud_firewall" "ssh_restriction" {
   }
 
   dynamic "rule" {
-    for_each = var.restrict_ssh && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+    for_each = var.restrict_ssh && var.enable_ipv6 && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
 
     content {
       direction  = "in"

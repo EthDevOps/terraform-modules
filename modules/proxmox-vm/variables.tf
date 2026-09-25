@@ -146,6 +146,12 @@ variable "extra_disk_size" {
   default     = null
 }
 
+variable "enable_ipv6" {
+  type        = bool
+  default     = false
+  description = "Whether the VM has IPv6 connectivity (e.g. an IPv6 address recorded in NetBox). When true, the open firewall rules are mirrored for IPv6 (::/0) and the SSH restriction is mirrored for the warpgate IPv6 origin."
+}
+
 variable "restrict_ssh" {
   type        = bool
   default     = false

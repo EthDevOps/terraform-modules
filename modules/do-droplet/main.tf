@@ -92,30 +92,30 @@ resource "digitalocean_droplet" "vm" {
 locals {
   firewall_enabled = var.restrict_ssh || var.restrict_to_services
 
-  # Per-service inbound rules, open from anywhere (IPv4). Port 22 is skipped —
-  # SSH is governed solely by restrict_ssh.
+  # Per-service inbound rules, open from anywhere. Mirrored to IPv6 when the
+  # host has IPv6. Port 22 is skipped — SSH is governed solely by restrict_ssh.
   service_rules = flatten([
     for s in var.services : s.port == 22 ? [] : [{
       protocol     = s.proto
       port_range   = tostring(s.port)
-      source_addrs = ["0.0.0.0/0"]
+      source_addrs = var.enable_ipv6 ? ["0.0.0.0/0", "::/0"] : ["0.0.0.0/0"]
     }]
   ])
 
   # Catch-all rules only in SSH-only mode. DO firewalls are pure allow-lists,
   # so the tcp catch-all is split around port 22 to keep SSH from non-warpgate
-  # sources blocked.
+  # sources blocked. ICMP rules use port_range "0" (the API-normalized value).
   catchall_rules_v4 = var.restrict_to_services ? [] : [
     { protocol = "tcp", port_range = "0-21" },
     { protocol = "tcp", port_range = "23-65535" },
     { protocol = "udp", port_range = "0-65535" },
-    { protocol = "sctp", port_range = "0-65535" },
+    { protocol = "icmp", port_range = "0" },
   ]
   catchall_rules_v6 = var.restrict_to_services || !var.enable_ipv6 ? [] : [
     { protocol = "tcp", port_range = "0-21" },
     { protocol = "tcp", port_range = "23-65535" },
     { protocol = "udp", port_range = "0-65535" },
-    { protocol = "sctp", port_range = "0-65535" },
+    { protocol = "icmp", port_range = "0" },
   ]
 }
 
@@ -136,7 +136,7 @@ resource "digitalocean_firewall" "ssh_restriction" {
   }
 
   dynamic "inbound_rule" {
-    for_each = var.restrict_ssh && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+    for_each = var.restrict_ssh && var.enable_ipv6 && var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
 
     content {
       protocol         = "tcp"
