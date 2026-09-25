@@ -68,6 +68,11 @@ output "ipv6" {
   value = var.enable_ipv6 ? digitalocean_droplet.vm.ipv6_address : null
 }
 
+output "firewall_id" {
+  value       = var.restrict_ssh ? digitalocean_firewall.ssh_restriction[0].id : null
+  description = "ID of the SSH-restriction CSP firewall, when restrict_ssh is enabled"
+}
+
 # Create a new Web Droplet in the nyc2 region
 resource "digitalocean_droplet" "vm" {
   image  = lookup(local.os_images, var.os)
@@ -82,6 +87,57 @@ resource "digitalocean_droplet" "vm" {
     "created-by-tf"
   ]
   ssh_keys = [for i in data.digitalocean_ssh_keys.keys.ssh_keys : i.id]
+}
+
+resource "digitalocean_firewall" "ssh_restriction" {
+  count = var.restrict_ssh ? 1 : 0
+
+  name        = "${var.hostname}-ssh-warpgate"
+  droplet_ids = [digitalocean_droplet.vm.id]
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "22"
+    source_addresses = [var.warpgate_origin_v4]
+  }
+
+  dynamic "inbound_rule" {
+    for_each = var.warpgate_origin_v6 != null ? [var.warpgate_origin_v6] : []
+
+    content {
+      protocol         = "tcp"
+      port_range       = "22"
+      source_addresses = [inbound_rule.value]
+    }
+  }
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "0-65535"
+    source_addresses = ["0.0.0.0/0"]
+  }
+
+  inbound_rule {
+    protocol         = "udp"
+    port_range       = "0-65535"
+    source_addresses = ["0.0.0.0/0"]
+  }
+
+  inbound_rule {
+    protocol         = "sctp"
+    port_range       = "0-65535"
+    source_addresses = ["0.0.0.0/0"]
+  }
+
+  dynamic "inbound_rule" {
+    for_each = var.enable_ipv6 ? ["tcp", "udp", "sctp"] : []
+
+    content {
+      protocol         = inbound_rule.value
+      port_range       = "0-65535"
+      source_addresses = ["::/0"]
+    }
+  }
 }
 
 resource "digitalocean_volume" "additional_storage" {
@@ -118,8 +174,6 @@ resource "netbox_virtual_machine" "vm" {
     project                = var.project
     environment            = var.environment
     expire_date            = var.expire_date
-    teleport_groups        = join(",", var.teleport_groups)
-    teleport_allowed_users = join(",", var.teleport_allowed_users)
   }
 }
 
@@ -164,7 +218,6 @@ resource "netbox_ip_address" "vm_eth0_ip4" {
   ip_address                   = "${digitalocean_droplet.vm.ipv4_address}/20"
   status                       = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
-  dns_name                     = "${var.hostname}.teleport.ethquokkaops.io"
 }
 
 resource "netbox_ip_address" "vm_eth0_ip6" {
@@ -172,7 +225,6 @@ resource "netbox_ip_address" "vm_eth0_ip6" {
   ip_address                   = "${digitalocean_droplet.vm.ipv6_address}/64"
   status                       = "active"
   virtual_machine_interface_id = netbox_interface.vm_eth0.id
-  dns_name                     = "${var.hostname}.teleport.ethquokkaops.io"
 }
 
 resource "netbox_ip_address" "vm_eth1_ip4" {
@@ -191,7 +243,7 @@ resource "netbox_service" "svc" {
     expose_mode   = each.value.expose_mode
     expose_domain = join(",", each.value.expose_domain)
     expose_auth   = each.value.expose_auth
-    teleport_name = each.value.teleport_name
+    internal_name = each.value.internal_name
     internal_only = each.value.internal_only
     balance_mode  = each.value.balance_mode
     allow_http    = each.value.allow_http
