@@ -104,19 +104,28 @@ locals {
 
   # Catch-all rules only in SSH-only mode. DO firewalls are pure allow-lists,
   # so the tcp catch-all is split around port 22 to keep SSH from non-warpgate
-  # sources blocked. ICMP rules use port_range "0" (the API-normalized value).
+  # sources blocked. "all" is the provider-normalized form of the API's "0"
+  # port range; icmp rules must omit port_range entirely.
   catchall_rules_v4 = var.restrict_to_services ? [] : [
     { protocol = "tcp", port_range = "0-21" },
     { protocol = "tcp", port_range = "23-65535" },
-    { protocol = "udp", port_range = "0-65535" },
-    { protocol = "icmp", port_range = "0" },
+    { protocol = "udp", port_range = "all" },
   ]
   catchall_rules_v6 = var.restrict_to_services || !var.enable_ipv6 ? [] : [
     { protocol = "tcp", port_range = "0-21" },
     { protocol = "tcp", port_range = "23-65535" },
-    { protocol = "udp", port_range = "0-65535" },
-    { protocol = "icmp", port_range = "0" },
+    { protocol = "udp", port_range = "all" },
   ]
+
+  # Assigning a firewall to a droplet also defaults all outbound traffic to
+  # drop, so allow all outbound explicitly to preserve pre-firewall behavior.
+  outbound_destinations = var.enable_ipv6 ? ["0.0.0.0/0", "::/0"] : ["0.0.0.0/0"]
+  outbound_port_rules = flatten([
+    for d in local.outbound_destinations : [
+      { protocol = "tcp", port_range = "all", destination = d },
+      { protocol = "udp", port_range = "all", destination = d },
+    ]
+  ])
 }
 
 resource "digitalocean_firewall" "ssh_restriction" {
@@ -172,6 +181,43 @@ resource "digitalocean_firewall" "ssh_restriction" {
       protocol         = inbound_rule.value.protocol
       port_range       = inbound_rule.value.port_range
       source_addresses = ["::/0"]
+    }
+  }
+
+  dynamic "inbound_rule" {
+    for_each = var.restrict_to_services ? [] : ["0.0.0.0/0"]
+
+    content {
+      protocol         = "icmp"
+      source_addresses = [inbound_rule.value]
+    }
+  }
+
+  dynamic "inbound_rule" {
+    for_each = var.restrict_to_services || !var.enable_ipv6 ? [] : ["::/0"]
+
+    content {
+      protocol         = "icmp"
+      source_addresses = [inbound_rule.value]
+    }
+  }
+
+  dynamic "outbound_rule" {
+    for_each = local.outbound_port_rules
+
+    content {
+      protocol              = outbound_rule.value.protocol
+      port_range            = outbound_rule.value.port_range
+      destination_addresses = [outbound_rule.value.destination]
+    }
+  }
+
+  dynamic "outbound_rule" {
+    for_each = local.outbound_destinations
+
+    content {
+      protocol              = "icmp"
+      destination_addresses = [outbound_rule.value]
     }
   }
 }
