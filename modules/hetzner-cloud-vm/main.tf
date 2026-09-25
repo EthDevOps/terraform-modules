@@ -282,12 +282,7 @@ resource "netbox_service" "svc" {
   protocol           = each.value.proto
   virtual_machine_id = netbox_virtual_machine.vm.id
   custom_fields = {
-    expose_mode   = each.value.expose_mode
     expose_domain = join(",", each.value.expose_domain)
-    expose_auth   = each.value.expose_auth
-    internal_name = each.value.internal_name
-    internal_only = each.value.internal_only
-    balance_mode  = each.value.balance_mode
   }
 }
 
