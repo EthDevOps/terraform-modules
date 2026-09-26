@@ -65,7 +65,7 @@ variable "services" {
     name  = string
     proto = string
     port = number
-    expose_domain = optional(string, "")
+    expose_domain = optional(list(string), [])
   }))
   default = []
 }
