@@ -111,6 +111,7 @@ resource "netbox_service" "svc" {
   protocol           = each.value.proto
   virtual_machine_id = netbox_virtual_machine.vm.id
   custom_fields = {
+    allow_http = false
     expose_domain = join(",", each.value.expose_domain)
   }
 }
