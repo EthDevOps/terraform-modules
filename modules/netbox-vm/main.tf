@@ -107,7 +107,7 @@ resource "netbox_ip_address" "vm_ip6" {
 resource "netbox_service" "svc" {
   for_each           = { for i in var.services : i.name => i }
   name               = each.key
-  ports              = each.value.ports
+  ports              = [each.value.port]
   protocol           = each.value.proto
   virtual_machine_id = netbox_virtual_machine.vm.id
 }

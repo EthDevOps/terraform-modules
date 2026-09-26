@@ -64,7 +64,7 @@ variable "services" {
   type = list(object({
     name  = string
     proto = string
-    ports = list(number)
+    port = number
   }))
   default = []
 }
