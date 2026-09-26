@@ -110,6 +110,9 @@ resource "netbox_service" "svc" {
   ports              = [each.value.port]
   protocol           = each.value.proto
   virtual_machine_id = netbox_virtual_machine.vm.id
+  custom_fields = {
+    expose_domain = join(",", each.value.expose_domain)
+  }
 }
 
 output "ipv4" {
