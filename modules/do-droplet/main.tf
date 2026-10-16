@@ -327,6 +327,7 @@ resource "netbox_service" "svc" {
   virtual_machine_id = netbox_virtual_machine.vm.id
   custom_fields = {
     expose_domain = join(",", each.value.expose_domain)
+    allow_http = "false"
   }
 }
 
