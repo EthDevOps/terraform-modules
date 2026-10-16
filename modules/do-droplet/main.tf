@@ -87,6 +87,7 @@ resource "digitalocean_droplet" "vm" {
     "created-by-tf"
   ]
   ssh_keys = [for i in data.digitalocean_ssh_keys.keys.ssh_keys : i.id]
+  vpc_uuid = var.vpc_uuid
 }
 
 locals {
@@ -252,11 +253,14 @@ resource "netbox_virtual_machine" "vm" {
   local_context_data = var.configContext
   description        = var.description
   tags               = var.tags
-  custom_fields = {
+  # warpgate_gate only when set, so existing VMs see no diff. Unset = eu.
+  custom_fields = merge({
     project     = var.project
     environment = var.environment
     expire_date = var.expire_date
-  }
+    }, var.warpgate_gate == null ? {} : {
+    warpgate_gate = var.warpgate_gate
+  })
 }
 
 resource "netbox_virtual_disk" "example" {

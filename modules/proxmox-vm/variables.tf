@@ -181,3 +181,9 @@ variable "loadbalancer_ips" {
   default     = ["10.128.2.3/32", "10.128.2.4/32"]
   description = "IPv4 CIDRs of the loadbalancers; the only sources allowed for services with expose_mode l4/l7 when restrict_to_services is enabled."
 }
+
+variable "warpgate_gate" {
+  type        = string
+  default     = null
+  description = "Warpgate gate (eu, us, apac) that holds this host's targets, via the NetBox custom field warpgate_gate. null leaves it unset, which tenancy treats as eu."
+}

@@ -62,9 +62,9 @@ variable "tags" {
 
 variable "services" {
   type = list(object({
-    name  = string
-    proto = string
-    port = number
+    name          = string
+    proto         = string
+    port          = number
     expose_domain = optional(list(string), [])
   }))
   default = []
@@ -93,3 +93,9 @@ variable "additional_volumes" {
   default = []
 }
 
+
+variable "warpgate_gate" {
+  type        = string
+  default     = null
+  description = "Warpgate gate (eu, us, apac) that holds this host's targets, via the NetBox custom field warpgate_gate. null leaves it unset, which tenancy treats as eu."
+}

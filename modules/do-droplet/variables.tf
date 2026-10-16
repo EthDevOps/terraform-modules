@@ -110,3 +110,15 @@ variable "restrict_to_services" {
     error_message = "restrict_to_services needs at least one non-SSH service (or restrict_ssh enabled) so the firewall has at least one inbound rule."
   }
 }
+
+variable "warpgate_gate" {
+  type        = string
+  default     = null
+  description = "Warpgate gate (eu, us, apac) that holds this host's targets, via the NetBox custom field warpgate_gate. null leaves it unset, which tenancy treats as eu."
+}
+
+variable "vpc_uuid" {
+  type        = string
+  default     = null
+  description = "VPC to place the droplet in. null uses the region's default VPC."
+}

@@ -103,11 +103,14 @@ resource "netbox_virtual_machine" "vm" {
   local_context_data = var.storage_optimized ? jsonencode(merge(jsondecode(var.configContext), { bootstrap_storage_optimized = true })) : var.configContext
   description        = var.description
   tags               = var.tags
-  custom_fields = {
+  # warpgate_gate only when set, so existing VMs see no diff. Unset = eu.
+  custom_fields = merge({
     project     = var.project
     environment = var.environment
     expire_date = var.expire_date
-  }
+    }, var.warpgate_gate == null ? {} : {
+    warpgate_gate = var.warpgate_gate
+  })
 }
 
 resource "netbox_virtual_disk" "os_disk" {
