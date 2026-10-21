@@ -89,7 +89,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 
   cpu {
     cores = var.cores
-    type  = var.storage_optimized ? "host" : "x86-64-v4"
+    type  = var.cpu_type != null ? var.cpu_type : (var.storage_optimized ? "host" : "x86-64-v4")
     numa  = var.storage_optimized
   }
 

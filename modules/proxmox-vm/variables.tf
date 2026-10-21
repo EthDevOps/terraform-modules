@@ -127,6 +127,12 @@ variable "storage_optimized" {
   default = false
 }
 
+variable "cpu_type" {
+  type        = string
+  default     = null
+  description = "Optional CPU type for the Proxmox VM (e.g. \"host\", \"x86-64-v2\"). When set, overrides the default derived from storage_optimized."
+}
+
 variable "pve_template_host" {
   type    = string
   default = "colo-pxe-01"
