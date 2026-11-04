@@ -9,7 +9,11 @@ resource "proxmox_virtual_environment_vm" "vm" {
     ignore_changes = [
       node_name,
       vm_id,
-      initialization
+      initialization,
+      # The template is only used at creation. Hosts are upgraded in place, so
+      # bumping var.os must update the Netbox platform, not re-clone the VM.
+      # Rebuild deliberately with `tofu apply -replace=...`.
+      clone,
     ]
   }
 

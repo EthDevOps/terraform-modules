@@ -88,6 +88,13 @@ resource "digitalocean_droplet" "vm" {
   ]
   ssh_keys = [for i in data.digitalocean_ssh_keys.keys.ssh_keys : i.id]
   vpc_uuid = var.vpc_uuid
+
+  lifecycle {
+    # The image is only used at creation. Hosts are upgraded in place, so
+    # bumping var.os must update the Netbox platform, not replace the droplet.
+    # Rebuild deliberately with `tofu apply -replace=...`.
+    ignore_changes = [image]
+  }
 }
 
 locals {
