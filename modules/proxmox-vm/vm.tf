@@ -130,7 +130,7 @@ resource "proxmox_virtual_environment_vm" "vm" {
 }
 
 locals {
-  firewall_enabled = var.restrict_ssh || var.restrict_to_services
+  firewall_enabled = var.restrict_ssh || var.restrict_to_services || var.ipfilter
 
   # Per-service source CIDRs for restrict_to_services, split by IP family
   # (PVE rule sources cannot mix IPv4 and IPv6):
@@ -181,6 +181,28 @@ resource "proxmox_virtual_environment_firewall_options" "restrict" {
   enabled       = true
   input_policy  = var.restrict_to_services ? "DROP" : "ACCEPT"
   output_policy = "ACCEPT"
+  ipfilter      = var.ipfilter
+}
+
+# PVE applies the IPSet named ipfilter-net<N> as the allowed source set for netN.
+# Only net0 is filtered: the ceph NIC has firewall=off, so PVE ignores it.
+resource "proxmox_virtual_environment_firewall_ipset" "ipfilter_net0" {
+  count = var.ipfilter ? 1 : 0
+
+  node_name = proxmox_virtual_environment_vm.vm.node_name
+  vm_id     = proxmox_virtual_environment_vm.vm.vm_id
+  name      = "ipfilter-net0"
+  comment   = "Managed by Terraform: IPs registered in NetBox for ${var.hostname}"
+
+  dynamic "cidr" {
+    for_each = concat(
+      [netbox_available_ip_address.vm_ip.ip_address, netbox_available_ip_address.vm_ip6.ip_address],
+      [for ip in netbox_available_ip_address.additional_vm_ip : ip.ip_address],
+    )
+    content {
+      name = split("/", cidr.value)[0]
+    }
+  }
 }
 
 resource "proxmox_virtual_environment_firewall_rules" "restrict" {

@@ -193,3 +193,9 @@ variable "warpgate_gate" {
   default     = null
   description = "Warpgate gate (eu, us, apac) that holds this host's targets, via the NetBox custom field warpgate_gate. null leaves it unset, which tenancy treats as eu."
 }
+
+variable "ipfilter" {
+  type        = bool
+  default     = false
+  description = "Enable PVE ipfilter on net0: only the IPs registered in NetBox for this VM may be used as source addresses (anti-spoofing)."
+}
