@@ -198,6 +198,9 @@ resource "proxmox_virtual_environment_firewall_ipset" "ipfilter_net0" {
     for_each = concat(
       [netbox_available_ip_address.vm_ip.ip_address, netbox_available_ip_address.vm_ip6.ip_address],
       [for ip in netbox_available_ip_address.additional_vm_ip : ip.ip_address],
+      # SLAAC address the guest also configures from the RA; fe80:: link-local
+      # derived from the MAC is allowed by PVE implicitly.
+      [local.slaac_address6],
     )
     content {
       name = split("/", cidr.value)[0]
