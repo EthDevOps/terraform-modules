@@ -34,6 +34,18 @@ variable "ipv4_address" {
   description = "IPv4 address with prefix (e.g. from module.vm.ipv4)"
 }
 
+variable "sequence" {
+  type        = number
+  default     = 1
+  description = "OPNsense rule sequence for all rules of this module instance. Lower runs first; rules with the same sequence keep creation order."
+}
+
+variable "categories" {
+  type        = list(string)
+  default     = []
+  description = "OPNsense firewall category IDs to tag all rules with (e.g. [opnsense_firewall_category.project.id])."
+}
+
 locals {
   l4_services = [
     for service in var.services :
@@ -52,6 +64,8 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
   }
 
   enabled     = true
+  sequence    = var.sequence
+  categories  = var.categories
   description = "TF: ${local.safe_hostname}->${each.value.name} v6"
 
   interface = {
@@ -84,6 +98,8 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
   }
 
   enabled     = true
+  sequence    = var.sequence
+  categories  = var.categories
   description = "TF: ${local.safe_hostname}->${each.value.name} v4"
 
   interface = {
@@ -111,8 +127,10 @@ resource "opnsense_firewall_dnat" "port_forward_https" {
     for idx, service in local.l4_services : "${service.name}-${service.port}" => service
     if service.expose_ipv4 != null
   }
-  interface = "wan"
-  protocol  = lower(each.value.proto)
+  interface  = "wan"
+  protocol   = lower(each.value.proto)
+  sequence   = var.sequence
+  categories = var.categories
 
   destination = {
     net  = each.value.expose_ipv4
