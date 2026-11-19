@@ -140,7 +140,7 @@ locals {
   svc_sources_v4 = {
     for s in var.services : s.name => (
       s.expose_mode == "internal" ? var.warpgate_origin_v4 :
-      contains(["l4", "l7"], s.expose_mode) ? var.loadbalancer_ips :
+      contains(["l7"], s.expose_mode) ? var.loadbalancer_ips :
       ["0.0.0.0/0"]
     )
   }
