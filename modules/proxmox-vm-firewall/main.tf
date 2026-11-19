@@ -52,7 +52,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
   }
 
   enabled     = true
-  description = "TF - Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v6"
+  description = "TF: ${local.safe_hostname}->${each.value.name} v6"
 
   interface = {
     interface = ["wan"]
@@ -84,7 +84,7 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
   }
 
   enabled     = true
-  description = "TF - Allow ${each.value.name} on ${each.value.port} for ${local.safe_hostname} v4"
+  description = "TF: ${local.safe_hostname}->${each.value.name} v4"
 
   interface = {
     interface = ["wan"]
@@ -124,7 +124,7 @@ resource "opnsense_firewall_dnat" "port_forward_https" {
     port = tostring(each.value.port)
   }
 
-  description = "TF: ${var.hostname}->${each.value.name}"
+  description = "TF: ${local.safe_hostname}->${each.value.name}"
 }
 
 
