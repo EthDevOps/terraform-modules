@@ -102,6 +102,10 @@ variable "services" {
     internal_name = optional(string, "")
     expose_domain = optional(list(string), [])
     balance_mode  = optional(string, "roundrobin")
+    # l7 only: client CIDRs allowed through the loadbalancer; everyone else gets a 403.
+    allow_src = optional(list(string), [])
+    # internal only: client CIDRs that skip Warpgate and reach the service directly.
+    warpgate_bypass_src = optional(list(string), [])
   }))
   default = []
   validation {

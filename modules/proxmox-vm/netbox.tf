@@ -159,12 +159,14 @@ resource "netbox_service" "svc" {
   protocol           = each.value.proto
   virtual_machine_id = netbox_virtual_machine.vm.id
   custom_fields = {
-    expose_mode   = each.value.expose_mode
-    expose_domain = join(",", each.value.expose_domain)
-    expose_auth   = each.value.expose_auth
-    internal_name = each.value.internal_name
-    balance_mode  = each.value.balance_mode
-    allow_http    = each.value.allow_http
+    expose_mode         = each.value.expose_mode
+    expose_domain       = join(",", each.value.expose_domain)
+    expose_auth         = each.value.expose_auth
+    internal_name       = each.value.internal_name
+    balance_mode        = each.value.balance_mode
+    allow_http          = each.value.allow_http
+    allow_src           = join(",", each.value.allow_src)
+    warpgate_bypass_src = join(",", each.value.warpgate_bypass_src)
   }
 }
 
