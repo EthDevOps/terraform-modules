@@ -152,8 +152,21 @@ resource "netbox_primary_ip" "vm_primary_ip6" {
   ip_address_version = 6
 }
 
+locals {
+  # One entry per (service, proto); "tcp/udp" expands to two. Single-proto
+  # services keep their name as key so existing netbox_service state is untouched.
+  service_protos = flatten([
+    for s in var.services : [
+      for p in split("/", s.proto) : merge(s, {
+        proto = p
+        key   = length(split("/", s.proto)) > 1 ? "${s.name}-${p}" : s.name
+      })
+    ]
+  ])
+}
+
 resource "netbox_service" "svc" {
-  for_each           = { for i in var.services : i.name => i }
+  for_each           = { for s in local.service_protos : s.key => s }
   name               = each.key
   ports              = [each.value.port]
   protocol           = each.value.proto

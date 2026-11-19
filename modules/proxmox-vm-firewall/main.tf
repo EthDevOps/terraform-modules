@@ -6,13 +6,16 @@ terraform {
   }
 }
 
+# Takes the same list as modules/proxmox-vm (pass module.vm.services; extra
+# attributes are dropped). Only expose_mode = "l4" entries get WAN rules, and
+# the IPv4 filter + DNAT only when expose_ipv4 is set.
 variable "services" {
   type = list(object({
     name        = string
     proto       = string
     port        = number
     expose_mode = optional(string, "off")
-    public_ipv4 = string
+    expose_ipv4 = optional(string, null)
   }))
   default = []
 }
@@ -77,7 +80,7 @@ resource "opnsense_firewall_filter" "ipv6_wan_services" {
 resource "opnsense_firewall_filter" "ipv4_wan_services" {
   for_each = {
     for idx, service in local.l4_services : "${service.name}-${service.port}" => service
-    if service.public_ipv4 != null
+    if service.expose_ipv4 != null
   }
 
   enabled     = true
@@ -106,13 +109,13 @@ resource "opnsense_firewall_filter" "ipv4_wan_services" {
 resource "opnsense_firewall_dnat" "port_forward_https" {
   for_each = {
     for idx, service in local.l4_services : "${service.name}-${service.port}" => service
-    if service.public_ipv4 != null
+    if service.expose_ipv4 != null
   }
   interface = "wan"
   protocol  = lower(each.value.proto)
 
   destination = {
-    net  = each.value.public_ipv4
+    net  = each.value.expose_ipv4
     port = tostring(each.value.port)
   }
 
@@ -121,7 +124,7 @@ resource "opnsense_firewall_dnat" "port_forward_https" {
     port = tostring(each.value.port)
   }
 
-  description = "TF - Port forward port ${each.value.port} on ${each.value.public_ipv4} to ${local.no_prefix_v4}"
+  description = "TF: ${var.hostname}->${each.value.name}"
 }
 
 

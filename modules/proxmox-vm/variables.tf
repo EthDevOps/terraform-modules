@@ -112,6 +112,10 @@ variable "services" {
     condition     = alltrue([for s in var.services : contains(["off", "l4", "l7", "internal"], s.expose_mode)])
     error_message = "expose_mode must be one of: 'off', 'l4', 'l7' or 'internal'"
   }
+  validation {
+    condition     = alltrue([for s in var.services : contains(["tcp", "udp", "tcp/udp"], s.proto)])
+    error_message = "proto must be one of: 'tcp', 'udp' or 'tcp/udp'"
+  }
 }
 variable "configContext" {
   type = string

@@ -156,7 +156,7 @@ locals {
   # Flat list of accept rule specs, one per (service, IP family). Port 22 is
   # skipped — SSH is governed solely by restrict_ssh.
   service_rule_specs = flatten([
-    for s in var.services : s.port == 22 ? [] : concat(
+    for s in local.service_protos : s.port == 22 ? [] : concat(
       length(local.svc_sources_v4[s.name]) > 0 ? [{
         proto   = s.proto
         port    = s.port
@@ -286,6 +286,13 @@ output "ipv6" {
 }
 output "mac" {
   value = local.mac_address
+}
+output "hostname" {
+  value = var.hostname
+}
+output "services" {
+  value       = var.services
+  description = "The services list as given, for feeding modules/proxmox-vm-firewall"
 }
 
 output "firewall_id" {
